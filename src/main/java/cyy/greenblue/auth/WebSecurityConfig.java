@@ -25,8 +25,7 @@ public class WebSecurityConfig {
         http.csrf().disable();
         http
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers(new AntPathRequestMatcher("/"),
-                                new AntPathRequestMatcher("/home")).permitAll()
+                        .antMatchers("/", "/home", "/join").permitAll()
                         .anyRequest().authenticated())
 //                .authorizeRequests((requests) -> requests
 //                        .antMatchers("/user/**").authenticated()

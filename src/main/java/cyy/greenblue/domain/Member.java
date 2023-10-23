@@ -1,6 +1,7 @@
 package cyy.greenblue.domain;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
@@ -21,5 +22,9 @@ public class Member {
     @CreationTimestamp
     private Timestamp createDate;
 
-
+    public Member(String username, String password, String email) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+    }
 }
