@@ -1,4 +1,4 @@
-package cyy.greenblue.config.auth;
+package cyy.greenblue.security.auth;
 
 import cyy.greenblue.domain.Member;
 import cyy.greenblue.repository.MemberRepository;
