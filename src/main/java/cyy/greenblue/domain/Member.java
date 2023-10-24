@@ -19,6 +19,10 @@ public class Member {
     private String email;
     private String role;
 
+    private String provider; //ex) google
+    private String providerId; //ex) attribute sub 정보
+
+
     @CreationTimestamp
     private Timestamp createDate;
 
