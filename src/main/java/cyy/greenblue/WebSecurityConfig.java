@@ -1,4 +1,4 @@
-package cyy.greenblue.auth;
+package cyy.greenblue;
 
 import cyy.greenblue.oauth.PrincipalOauth2UserService;
 import lombok.RequiredArgsConstructor;
@@ -9,31 +9,36 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
-@EnableWebSecurity //스프링 시큐리티 필터가 스프링 필터체인에 등록됨
 @RequiredArgsConstructor
+@EnableWebSecurity
 public class WebSecurityConfig {
 
     private final PrincipalOauth2UserService userService; // 사용자 정보를 가져오고 처리하기 위한 설정
+
+    @Bean
+    public BCryptPasswordEncoder encoderPw() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable();
         http
                 .authorizeHttpRequests((requests) -> requests
-                        .antMatchers("/", "/home", "/join").permitAll()
+                        .antMatchers("/", "/join").permitAll()
+                        .antMatchers("/user/**").hasAnyRole("USER", "ADMIN", "MANAGER")
+                        .antMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER")
+                        .antMatchers("/manager/**").hasRole("MANAGER")
                         .anyRequest().authenticated())
-//                .authorizeRequests((requests) -> requests
-//                        .antMatchers("/user/**").authenticated()
-//                        .antMatchers("/manager/**").access("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
-//                        .antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')")
-//                        .anyRequest().permitAll())
                 .formLogin((form) -> form
                         .loginPage("/login")
+                        .loginProcessingUrl("/loginProc")
+                        .defaultSuccessUrl("/hello")
                         .permitAll())
                 .logout((logout) -> logout.permitAll())
                 .oauth2Login((google) -> google
@@ -44,14 +49,4 @@ public class WebSecurityConfig {
         return http.build();
     }
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user =
-                User.withDefaultPasswordEncoder()
-                        .username("user")
-                        .password("password")
-                        .roles("USER")
-                        .build();
-        return new InMemoryUserDetailsManager(user);
-    }
 }

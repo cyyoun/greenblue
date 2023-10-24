@@ -1,13 +1,13 @@
 package cyy.greenblue.domain;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 
-@Getter
+@Data
 @Entity
 public class Member {
     @Id
@@ -22,9 +22,4 @@ public class Member {
     @CreationTimestamp
     private Timestamp createDate;
 
-    public Member(String username, String password, String email) {
-        this.username = username;
-        this.password = password;
-        this.email = email;
-    }
 }
