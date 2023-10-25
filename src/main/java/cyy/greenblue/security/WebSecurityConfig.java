@@ -45,7 +45,7 @@ public class WebSecurityConfig {
                         .permitAll())
                 .logout((logout) -> logout.permitAll())
                 // 구글 로그인 완료 후 후처리가 필요함 → Tip. 액세스 토큰 + 사용자 프로필 정보 받음
-                .oauth2Login((google) -> google
+                .oauth2Login((oauth) -> oauth
                         .loginPage("/loginForm")
                         .userInfoEndpoint() //인증 후 사용자 정보 가져오는 엔드포인트 설정
                         .userService(principalOauth2UserService) //사용자 정보를 어떻게 처리할 건지 결정하는 사용자 정의 서비스 설정
