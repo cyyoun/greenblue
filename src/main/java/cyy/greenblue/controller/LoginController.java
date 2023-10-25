@@ -50,7 +50,8 @@ public class LoginController {
 
     @GetMapping("/user")
     @ResponseBody
-    public String user() {
+    public String user(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        System.out.println("======== principalDetails : " + principalDetails.getMember());
         return "유저 페이지입니다.";
     }
 
