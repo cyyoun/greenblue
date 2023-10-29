@@ -68,6 +68,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
                     .username(username)
                     .password(password)
                     .email(email)
+
                     .role(role)
                     .provider(provider)
                     .providerId(providerId)

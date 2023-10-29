@@ -49,5 +49,6 @@ spring:
 
 logging:
   level:
+    org.springframework: debug
     root: info
 #    org.hibernate.SQL: debug

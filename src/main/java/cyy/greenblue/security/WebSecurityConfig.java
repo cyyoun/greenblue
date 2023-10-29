@@ -4,10 +4,14 @@ import cyy.greenblue.security.oauth.PrincipalOauth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.filter.CorsFilter;
+
 /**
  * 1. 코드 받기(인증 완료)
  * 2. 액세스 토큰 (권한)
@@ -22,9 +26,11 @@ import org.springframework.security.web.SecurityFilterChain;
 public class WebSecurityConfig {
 
     private final PrincipalOauth2UserService principalOauth2UserService; // 사용자 정보를 가져오고 처리하기 위한 설정
+    private final CorsFilter corsFilter;
 
     @Bean
-    public BCryptPasswordEncoder encoderPw() {
+    @Lazy
+    public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -32,11 +38,16 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable();
         http
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .addFilter(corsFilter)
+                .httpBasic().disable()
                 .authorizeHttpRequests((requests) -> requests
                         .antMatchers("/", "/join").permitAll()
                         .antMatchers("/user/**").hasAnyRole("USER", "ADMIN", "MANAGER")
                         .antMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER")
                         .antMatchers("/manager/**").hasRole("MANAGER")
+                        .antMatchers("/hello/**").hasAnyRole("USER", "ADMIN", "MANAGER")
                         .anyRequest().authenticated())
                 .formLogin((form) -> form
                         .loginPage("/login")
