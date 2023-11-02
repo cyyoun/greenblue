@@ -19,7 +19,7 @@ public class CorsConfig {
         config.addAllowedOrigin("*"); //모든 ip 허용
         config.addAllowedHeader("*"); //모든 header에 응답 허용
         config.addAllowedMethod("*"); //모든 HTTP 메서드 요청 허용
-        source.registerCorsConfiguration("/login/**", config); // /api/** 로 들어오는 값 모두 설정
+        source.registerCorsConfiguration("/*", config); // /api/** 로 들어오는 값 모두 설정
         return new CorsFilter(source);
 
     }

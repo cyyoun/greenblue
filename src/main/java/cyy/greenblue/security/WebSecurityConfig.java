@@ -1,5 +1,6 @@
 package cyy.greenblue.security;
 
+import cyy.greenblue.security.jwt.JwtAuthenticationFilter;
 import cyy.greenblue.security.oauth.PrincipalOauth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +23,6 @@ import org.springframework.web.filter.CorsFilter;
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
-//@EnableGlobalMethodSecurity(securedEnabled = true)
 public class WebSecurityConfig {
 
     private final PrincipalOauth2UserService principalOauth2UserService; // 사용자 정보를 가져오고 처리하기 위한 설정
@@ -38,31 +38,28 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable();
         http
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .and()
                 .addFilter(corsFilter)
                 .httpBasic().disable()
+                .addFilter(new JwtAuthenticationFilter())
                 .authorizeHttpRequests((requests) -> requests
-                        .antMatchers("/", "/join").permitAll()
+                        .antMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
+                        .antMatchers("/join").permitAll()
                         .antMatchers("/user/**").hasAnyRole("USER", "ADMIN", "MANAGER")
+                        .antMatchers("/hello/**").hasAnyRole("USER", "ADMIN", "MANAGER")
                         .antMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER")
                         .antMatchers("/manager/**").hasRole("MANAGER")
-                        .antMatchers("/hello/**").hasAnyRole("USER", "ADMIN", "MANAGER")
                         .anyRequest().authenticated())
-                .formLogin((form) -> form
-                        .loginPage("/login")
-                        .loginProcessingUrl("/loginProc")
-                        .defaultSuccessUrl("/hello")
-                        .permitAll())
+                .formLogin().disable()
                 .logout((logout) -> logout.permitAll())
                 // 구글 로그인 완료 후 후처리가 필요함 → Tip. 액세스 토큰 + 사용자 프로필 정보 받음
                 .oauth2Login((oauth) -> oauth
-                        .loginPage("/loginForm")
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/hello").permitAll()
                         .userInfoEndpoint() //인증 후 사용자 정보 가져오는 엔드포인트 설정
-                        .userService(principalOauth2UserService) //사용자 정보를 어떻게 처리할 건지 결정하는 사용자 정의 서비스 설정
-                        .and().defaultSuccessUrl("/hello", true));
+                        .userService(principalOauth2UserService)); //사용자 정보를 어떻게 처리할 건지 결정하는 사용자 정의 서비스 설정
 
         return http.build();
     }
-
 }
