@@ -10,7 +10,7 @@ public class Product {
     private long id;
     private String name;
     private String code;
-    private String price;
+    private int price;
     @Column(name = "sold_out")
     private boolean soldOut; //true: 품절, false: 판매중
     private String color;
