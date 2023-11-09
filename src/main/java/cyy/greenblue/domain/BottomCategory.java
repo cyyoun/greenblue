@@ -1,8 +1,12 @@
 package cyy.greenblue.domain;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 
 @Entity
+@Setter @Getter
 public class BottomCategory {
     @Id
     @Column(name = "bottom_category_id")
