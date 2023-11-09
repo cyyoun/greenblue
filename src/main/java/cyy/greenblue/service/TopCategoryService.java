@@ -15,21 +15,28 @@ public class TopCategoryService {
 
     private final TopCategoryRepository topCategoryRepository;
 
-    public TopCategory duplicateChk(TopCategory topCategory) {
-        return topCategoryRepository.findByName(topCategory.getName());
+    public int duplicateChk(TopCategory topCategory) {
+        return topCategoryRepository.findAllByName(topCategory.getName()).size();
     }
 
     public TopCategory add(TopCategory topCategory) {
-        topCategoryRepository.save(topCategory);
-        return topCategoryRepository.findById(topCategory.getId()).orElse(null);
+        if (duplicateChk(topCategory) == 0) {
+            topCategoryRepository.save(topCategory);
+            return findOne(topCategory.getId());
+        }
+        return null;
     }
 
-    public void edit(TopCategory topCategory) {
-        topCategoryRepository.save(topCategory);
+    public TopCategory edit(TopCategory topCategory) {
+        if (duplicateChk(topCategory) == 0) {
+            topCategoryRepository.save(topCategory);
+            return findOne(topCategory.getId());
+        }
+        return null;
     }
 
-    public void delete(TopCategory topCategory) {
-        topCategoryRepository.delete(topCategory);
+    public void delete(int topCategoryId) {
+        topCategoryRepository.deleteById(topCategoryId);
     }
 
     public TopCategory findOne(int topCategoryId) {
