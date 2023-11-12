@@ -21,10 +21,10 @@ public class Member {
     private String password;
     private String email;
     private String role;
+    private Grade grade;
 
     private String provider; //ex) google
     private String providerId; //ex) attribute sub 정보
-
 
     @CreationTimestamp
     private Timestamp createDate;
