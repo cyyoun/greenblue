@@ -19,8 +19,15 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    public void edit(Product product) {
-        productRepository.save(product);
+    public Product edit(long productId, Product product) {
+        Product newProduct = findOne(productId);
+        newProduct.setName(product.getName());
+        newProduct.setCode(product.getCode());
+        newProduct.setPrice(product.getPrice());
+        newProduct.setColor(product.getColor());
+        newProduct.setSize(product.getSize());
+        newProduct.setBottomCategory(product.getBottomCategory());
+        return newProduct;
     }
 
     public void delete(Product product) {
