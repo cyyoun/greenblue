@@ -23,6 +23,8 @@ public class Member {
     private String role;
     private Grade grade;
 
+    @OneToOne(mappedBy = "member")
+    private Cart cart;
     private String provider; //ex) google
     private String providerId; //ex) attribute sub 정보
 

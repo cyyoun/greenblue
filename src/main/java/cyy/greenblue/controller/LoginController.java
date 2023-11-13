@@ -1,15 +1,14 @@
 package cyy.greenblue.controller;
 
+import cyy.greenblue.domain.Cart;
 import cyy.greenblue.domain.Member;
+import cyy.greenblue.repository.CartRepository;
 import cyy.greenblue.repository.MemberRepository;
 import cyy.greenblue.security.auth.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +23,7 @@ public class LoginController {
 
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final CartRepository cartRepository;
 
     @GetMapping(value= {"/login", "/"})
     public String loginForm() {
@@ -44,7 +44,13 @@ public class LoginController {
     public String join(@ModelAttribute Member member) {
         member.setRole("ROLE_USER");
         member.setPassword(bCryptPasswordEncoder.encode(member.getPassword()));
-        memberRepository.save(member);
+        memberRepository.save(member); //먼저 회원을 저장 (!! cart_id 가 없어서 오류 발생했기에 순서 중요)
+
+        Cart cart = new Cart();
+        cart.setMember(member);
+        member.setCart(cart);
+        cartRepository.save(cart); // 생성된 Cart를 Member에 연결
+
         return "redirect:/";
     }
 
