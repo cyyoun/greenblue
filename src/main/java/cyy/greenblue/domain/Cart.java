@@ -1,31 +1,27 @@
 package cyy.greenblue.domain;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
-@Setter
 @Entity
 public class Cart {
 
-    @Column(name = "cart_id")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "member_id")
     private long id;
 
     @OneToOne
     @JoinColumn(name = "member_id")
     private Member member;
 
+
+    /** 양방향 고려해보기
     @OneToMany(mappedBy = "cart")
-    private List<CartItem> cartItems = new ArrayList<>();
+    private List<CartProduct> cartProducts = new ArrayList<>();*/
 
-    public Cart() {
-    }
-
+    public Cart() {}
 
 }

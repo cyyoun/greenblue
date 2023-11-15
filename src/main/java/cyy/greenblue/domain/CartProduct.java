@@ -1,20 +1,18 @@
 package cyy.greenblue.domain;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import javax.persistence.*;
 
-@Getter @Setter
+@Getter
 @Entity
-public class CartItem {
+public class CartProduct {
 
-    @Column(name = "cart_item_id")
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "cart_product_id")
     private long id;
     private int quantity;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")

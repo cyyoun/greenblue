@@ -1,19 +1,21 @@
 package cyy.greenblue.domain;
 
-import lombok.Data;
 import lombok.Getter;
-import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
 @Getter
-@Setter
-public class TopCategory {
-
+public class LeafCategory {
     @Id
-    @Column(name = "top_category_id")
+    @Column(name = "leaf_category_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category; //단방향 fk
+
 }
+
