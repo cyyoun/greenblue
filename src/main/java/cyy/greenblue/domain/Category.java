@@ -15,6 +15,7 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
+    private int depth = 1;
 
     @ManyToOne
     @JoinColumn(name = "parent_id")
@@ -22,5 +23,12 @@ public class Category {
 
     @OneToMany(mappedBy = "parent")
     private List<Category> subCategories = new ArrayList<>();
+
+    public void addDepth(int depth) {
+        this.depth = depth;
+    }
+    public void editName(String name) {
+        this.name = name;
+    }
 
 }
