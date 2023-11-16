@@ -1,8 +1,6 @@
 package cyy.greenblue.service;
 
 import cyy.greenblue.domain.Cart;
-import cyy.greenblue.domain.CartItem;
-import cyy.greenblue.repository.CartItemRepository;
 import cyy.greenblue.repository.CartRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,48 +13,38 @@ import java.util.List;
 @Service
 public class CartService {
 
-    private final CartItemRepository cartItemRepository;
     private final CartRepository cartRepository;
 
-    public CartItem save(CartItem cartItem) {
-        // Cart의 ArraList<CartItem> 가져오기
-        Cart cart = cartRepository.findById(cartItem.getCart().getId()).orElse(null);
-        List<CartItem> cartItems = cart.getCartItems();
+    public Cart add(Cart cart) {
+        //이미 상품이 장바구니에 있으면 수량만 변경
+        Cart oriCart = findByMemberAndProduct(cart);
+        if (oriCart != null) {
+            int sum = oriCart.getQuantity() + cart.getQuantity();
+            oriCart.editQuantity(sum);
+            return edit(oriCart);
+        }
+        return cartRepository.save(cart);
+    }
 
-        // Product 중복 값이 있는지 확인하기
-        CartItem item = cartItems.stream()
-                .filter(i -> i.getProduct().getId() == cartItem.getProduct().getId())
-                .findAny()
-                .orElse(null);
-
-
-        if (item == null) { //신규 상품 추가
-            cartItems.add(cartItem);
-            return cartItemRepository.save(cartItem);
-        } else { //상품 누적 (수량 증가)
-            item.setQuantity(cartItem.getQuantity() + item.getQuantity());
-            return cartItem;
+    public void delete(List<Cart> carts) {
+        for (Cart cart : carts) {
+            cartRepository.deleteById(cart.getId());
         }
     }
 
-    public String delete(long cartItemId) {
-        cartItemRepository.deleteById(cartItemId);
-        return "삭제되었습니다...";
+    public Cart edit(Cart cart) { //변경할 cart 값
+        Cart oriCart = findOne(cart.getId()
+        );
+        oriCart.editCart(cart.getQuantity(), cart.getProduct());
+        return oriCart;
     }
 
-    public CartItem changeQuantity(CartItem cartItem, long cartItemId) {
-        CartItem item = findOne(cartItemId);
-        int quantity = cartItem.getQuantity();
-        if (quantity == 0) {
-            delete(cartItemId);
-            return null;
-        }
-        item.setQuantity(quantity);
-        return cartItem;
+    public Cart findByMemberAndProduct(Cart cart) {
+        return cartRepository.findByMemberAndProduct(cart.getMember(), cart.getProduct());
     }
 
-    public CartItem findOne(long cartItemId) {
-        return cartItemRepository.findById(cartItemId).orElse(null);
+    public Cart findOne(long cartItemId) {
+        return cartRepository.findById(cartItemId).orElse(null);
     }
 
 }
