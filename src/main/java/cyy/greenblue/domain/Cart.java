@@ -10,18 +10,27 @@ public class Cart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_id")
+    @Column(name = "cart_id")
     private long id;
+    private int quantity;
 
     @OneToOne
     @JoinColumn(name = "member_id")
     private Member member;
 
-
-    /** 양방향 고려해보기
-    @OneToMany(mappedBy = "cart")
-    private List<CartProduct> cartProducts = new ArrayList<>();*/
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 
     public Cart() {}
+
+    public void editQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public void editCart(int quantity, Product product) {
+        this.quantity = quantity;
+        this.product = product;
+    }
 
 }

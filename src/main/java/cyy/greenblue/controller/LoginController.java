@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.time.LocalDateTime;
+
 
 @Controller
 @RequiredArgsConstructor
@@ -44,12 +46,8 @@ public class LoginController {
     public String join(@ModelAttribute Member member) {
         member.setRole("ROLE_USER");
         member.setPassword(bCryptPasswordEncoder.encode(member.getPassword()));
+        member.setRegDate(LocalDateTime.now());
         memberRepository.save(member); //먼저 회원을 저장 (!! cart_id 가 없어서 오류 발생했기에 순서 중요)
-
-        Cart cart = new Cart();
-        cart.setMember(member);
-        member.setCart(cart);
-        cartRepository.save(cart); // 생성된 Cart를 Member에 연결
 
         return "redirect:/";
     }

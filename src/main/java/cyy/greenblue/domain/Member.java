@@ -1,12 +1,13 @@
 package cyy.greenblue.domain;
 
 import lombok.Builder;
-import lombok.Data;
 
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @Entity
@@ -21,18 +22,23 @@ public class Member {
     private String email;
     private String role;
     private Grade grade;
+
+    @Column(name = "reg_date")
     private LocalDateTime regDate;
 
-    private String provider; //ex) google
+    @Column(name = "provider_id")
     private String providerId; //ex) attribute sub 정보
+    private String provider; //ex) google
 
     @Builder
-    public Member(String username, String password, String email, String role, String provider, String providerId) {
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.role = role;
-        this.provider = provider;
-        this.providerId = providerId;
+    public static Member create(String username, String password, String email, String role, String provider, String providerId) {
+        return Member.builder()
+                .username(username)
+                .password(password)
+                .email(email)
+                .role(role)
+                .provider(provider)
+                .providerId(providerId)
+                .build();
     }
 }
