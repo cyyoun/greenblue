@@ -24,10 +24,10 @@ public class Category {
     @OneToMany(mappedBy = "parent")
     private List<Category> subCategories = new ArrayList<>();
 
-    public void addDepth(int depth) {
+    public void updateDepth(int depth) {
         this.depth = depth;
     }
-    public void editName(String name) {
+    public void updateName(String name) {
         this.name = name;
     }
 

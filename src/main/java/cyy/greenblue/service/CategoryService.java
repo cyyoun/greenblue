@@ -3,7 +3,6 @@ package cyy.greenblue.service;
 import cyy.greenblue.domain.Category;
 import cyy.greenblue.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.Parent;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +28,7 @@ public class CategoryService {
     private void depthValue(Category category) { //카테고리 depth 자동 설정 (부모 id의 깊이 + 1)
         if (category.getParent() != null) {
             Category one = findOne(category.getParent().getId());
-            category.addDepth(one.getDepth() + 1);
+            category.updateDepth(one.getDepth() + 1);
         }
     }
 
@@ -50,7 +49,7 @@ public class CategoryService {
             throw new RuntimeException("이미 해당 카테고리가 존재합니다.");
         } else {
             depthValue(category);
-            findOne(category.getId()).editName(category.getName());
+            findOne(category.getId()).updateName(category.getName());
             return category;
         }
     }
