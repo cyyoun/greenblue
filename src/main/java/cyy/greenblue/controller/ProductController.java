@@ -43,10 +43,17 @@ public class ProductController {
     @GetMapping("/list")
     public List<UserProductDto> list() {
         List<Product> products = productService.findAll();
-        List<UserProductDto> list = products.stream()
+        return products.stream()
                 .map(product -> modelMapper.map(product, UserProductDto.class))
                 .collect(Collectors.toList());
-        return list;
+    }
+
+    @GetMapping("/list/{categoryId}")
+    public List<UserProductDto> listByCategory(@PathVariable int categoryId) {
+        List<Product> products = productService.findAllByCategory(categoryId);
+        return products.stream()
+                .map(product -> modelMapper.map(product, UserProductDto.class))
+                .collect(Collectors.toList());
     }
 
 }

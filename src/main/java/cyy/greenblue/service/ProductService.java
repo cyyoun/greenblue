@@ -1,6 +1,8 @@
 package cyy.greenblue.service;
 
+import cyy.greenblue.domain.Category;
 import cyy.greenblue.domain.Product;
+import cyy.greenblue.repository.CategoryRepository;
 import cyy.greenblue.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryService categoryService;
 
     public Product add(Product product) {
         productRepository.save(product);
@@ -44,4 +47,8 @@ public class ProductService {
         return productRepository.findAll();
     }
 
+    public List<Product> findAllByCategory(int categoryId) {
+        Category category = categoryService.findOne(categoryId);
+        return productRepository.findAllByCategory(category);
+    }
 }
