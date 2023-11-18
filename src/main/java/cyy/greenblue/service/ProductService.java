@@ -15,23 +15,25 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    public void add(Product product) {
+    public Product add(Product product) {
         productRepository.save(product);
+        return findOne(product.getId());
     }
 
-    public Product edit(long productId, Product product) {
-        Product newProduct = findOne(productId);
-        newProduct.setName(product.getName());
-        newProduct.setCode(product.getCode());
-        newProduct.setPrice(product.getPrice());
-        newProduct.setColor(product.getColor());
-        newProduct.setSize(product.getSize());
-        newProduct.setBottomCategory(product.getBottomCategory());
-        return newProduct;
+    public Product edit(Product product) {
+        Product oriProduct = findOne(product.getId());
+        oriProduct.update(
+                product.getName(),
+                product.getPrice(),
+                product.getQuantity(),
+                product.getDescription(),
+                product.getCategory()
+        );
+        return oriProduct;
     }
 
-    public void delete(Product product) {
-        productRepository.delete(product);
+    public void delete(long productId) {
+        productRepository.delete(findOne(productId));
     }
 
     public Product findOne(long productId) {

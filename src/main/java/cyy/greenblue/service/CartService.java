@@ -33,8 +33,7 @@ public class CartService {
     }
 
     public Cart edit(Cart cart) { //변경할 cart 값
-        Cart oriCart = findOne(cart.getId()
-        );
+        Cart oriCart = findOne(cart.getId());
         oriCart.editCart(cart.getQuantity(), cart.getProduct());
         return oriCart;
     }
