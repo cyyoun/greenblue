@@ -2,9 +2,10 @@ package cyy.greenblue.service;
 
 import cyy.greenblue.domain.Category;
 import cyy.greenblue.domain.Product;
-import cyy.greenblue.repository.CategoryRepository;
 import cyy.greenblue.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,8 +48,11 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public List<Product> findAllByCategory(int categoryId) {
+    public Page<Product> findAllByCategory(String soldOut, int price1, int price2, int categoryId, Pageable pageable) {
         Category category = categoryService.findOne(categoryId);
-        return productRepository.findAllByCategory(category);
+        if (soldOut.equals("n")) { //품절 제외
+            return productRepository.soldOut_N(price1, price2, category, pageable);
+        }
+        return productRepository.soldOut_Y(price1, price2, category, pageable); //품절 포함
     }
 }
