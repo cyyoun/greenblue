@@ -4,6 +4,7 @@ import cyy.greenblue.domain.Product;
 import cyy.greenblue.dto.UserProductDto;
 import cyy.greenblue.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -77,6 +78,13 @@ public class ProductController {
 
         return productService.findAllByCategory(soldOut, price1, price2, categoryId, dynamicPageable)
                 .map(product -> modelMapper.map(product, UserProductDto.class));
+    }
+
+    @GetMapping
+    public List<UserProductDto> search(@RequestParam String word) {
+        return productService.findByWord(word).stream()
+                .map(product -> modelMapper.map(product, UserProductDto.class))
+                .collect(Collectors.toList());
     }
 
 }

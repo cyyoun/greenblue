@@ -55,4 +55,8 @@ public class ProductService {
         }
         return productRepository.soldOut_Y(price1, price2, category, pageable); //품절 포함
     }
+
+    public List<Product> findByWord(String word) {
+        return productRepository.findAllByWord(word);
+    }
 }
