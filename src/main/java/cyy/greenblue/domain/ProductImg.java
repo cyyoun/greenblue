@@ -9,8 +9,9 @@ import javax.persistence.*;
 public class ProductImg {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "product_picture_id")
+    @Column(name = "product_img_id")
     private long id;
+    @Column(name = "filename")
     private String filename; //이미지 파일명
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -41,8 +41,8 @@ public class FileStore {
         return changeFileName;
     }
 
-    public List<String> saveFiles(List<MultipartFile> multipartFiles, String fileDire) throws IOException {
-        updateFileDir(fileDire);
+    public List<String> saveFiles(List<MultipartFile> multipartFiles, String fileDir) throws IOException {
+        updateFileDir(fileDir);
         List<String> savedFiles = new ArrayList<>();
 
         for (MultipartFile multipartFile : multipartFiles) {
@@ -53,5 +53,17 @@ public class FileStore {
         return savedFiles;
     }
 
+    public void deleteFile(String filename) {
+        File file = new File(fileDir + filename);
+        if (file.exists()) {
+            file.delete();
+        }
+    }
 
+    public void deleteFiles(List<String> filenames, String fileDir) {
+        updateFileDir(fileDir);
+        for (String filename : filenames) {
+            deleteFile(filename);
+        }
+    }
 }

@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -43,13 +44,16 @@ public class ProductImgService {
         return productImageRepository.saveAll(saveProductImgs);
     }
 
-    public ProductImg findOne(long productImageId) {
-        return productImageRepository.findById(productImageId).orElseThrow();
+    public List<String> findFilenames(long productId) { //파일 조회
+        Product product = productService.findOne(productId);
+        return productImageRepository.findFilenames(product);
     }
 
-    public List<String> findAllByProduct(long productImageId) {
-        Product product = productService.findOne(productImageId);
-        return productImageRepository.findAllByProduct(product);
+    public void deleteFiles(List<ProductImg> productImgs) {
+        List<String> filenames = productImgs.stream()
+                .map(productImg -> productImg.getFilename())
+                .collect(Collectors.toList());
+        fileStore.deleteFiles(filenames, fileDir); //파일 삭제
+        productImageRepository.deleteAll(productImgs);
     }
-
 }

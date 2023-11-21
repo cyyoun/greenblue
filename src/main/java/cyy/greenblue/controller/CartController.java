@@ -19,7 +19,7 @@ public class CartController {
         return cartService.add(cart);
     }
 
-    @PostMapping("/del")
+    @PostMapping("/delete")
     public String delete(@RequestBody List<Cart> carts) {
         cartService.delete(carts);
         return "삭제되었습니다.";

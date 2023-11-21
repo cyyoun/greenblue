@@ -27,9 +27,7 @@ public class CartService {
     }
 
     public void delete(List<Cart> carts) {
-        for (Cart cart : carts) {
-            cartRepository.deleteById(cart.getId());
-        }
+        cartRepository.deleteAll(carts);
     }
 
     public Cart edit(Cart cart) { //변경할 cart 값
