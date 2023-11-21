@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @Entity
@@ -21,7 +20,15 @@ public class Member {
     private String password;
     private String email;
     private String role;
+
+    @Enumerated(EnumType.STRING)
     private Grade grade;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "")
+    private Point point;
+
+
 
     @Column(name = "reg_date")
     private LocalDateTime regDate;

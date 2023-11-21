@@ -17,7 +17,7 @@ public class Category {
     private String name;
     private int depth = 1;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Category parent;
 
