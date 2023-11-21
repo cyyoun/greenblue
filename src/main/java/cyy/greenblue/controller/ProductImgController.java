@@ -1,6 +1,5 @@
 package cyy.greenblue.controller;
 
-import cyy.greenblue.domain.ProductImg;
 import cyy.greenblue.service.ProductImgService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -20,5 +19,13 @@ public class ProductImgController {
         productImgService.save(multipartFiles, productId);
         return "이미지 업로드 하였습니다.";
     }
+
+    @GetMapping
+    public List<String> list(@PathVariable long productId) {
+        List<String> allByProduct = productImgService.findAllByProduct(productId);
+        return allByProduct;
+    }
+
+
 
 }

@@ -47,5 +47,9 @@ public class ProductImgService {
         return productImageRepository.findById(productImageId).orElseThrow();
     }
 
+    public List<String> findAllByProduct(long productImageId) {
+        Product product = productService.findOne(productImageId);
+        return productImageRepository.findAllByProduct(product);
+    }
 
 }
