@@ -24,5 +24,10 @@ public class ProductImg {
         this.filename = filename;
         this.product = product;
     }
+
+    public ProductImg update(String filename) {
+        this.filename = filename;
+        return this;
+    }
 }
 

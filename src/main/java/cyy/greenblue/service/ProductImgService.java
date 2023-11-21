@@ -27,7 +27,7 @@ public class ProductImgService {
     private final ProductService productService;
     private final FileStore fileStore;
 
-    public List<ProductImg> save(List<MultipartFile> multipartFiles, long productId) {
+    public List<ProductImg> save(long productId, List<MultipartFile> multipartFiles) {
         Product product = productService.findOne(productId);
         List<ProductImg> saveProductImgs = new ArrayList<>();
         List<String> saveFiles;
@@ -55,5 +55,20 @@ public class ProductImgService {
                 .collect(Collectors.toList());
         fileStore.deleteFiles(filenames, fileDir); //파일 삭제
         productImageRepository.deleteAll(productImgs);
+    }
+
+    public ProductImg findOne(long productImgId) {
+        return productImageRepository.findById(productImgId).orElseThrow();
+    }
+
+    public ProductImg edit(long productImgId, MultipartFile multipartFile) {
+        ProductImg productImg = findOne(productImgId);
+        try {
+            String changedFile = fileStore.changeFile(productImg.getFilename(), multipartFile, fileDir);
+            productImg.update(changedFile);
+            return productImg;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

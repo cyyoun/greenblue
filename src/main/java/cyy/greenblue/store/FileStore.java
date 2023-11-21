@@ -66,4 +66,10 @@ public class FileStore {
             deleteFile(filename);
         }
     }
+
+    public String changeFile(String deleteFile, MultipartFile newFile, String fileDir) throws IOException {
+        updateFileDir(fileDir);
+        deleteFile(deleteFile);
+        return saveFile(newFile);
+    }
 }

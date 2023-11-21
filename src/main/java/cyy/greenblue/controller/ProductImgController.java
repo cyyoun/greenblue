@@ -17,13 +17,26 @@ public class ProductImgController {
 
     @PostMapping
     public String upload(@PathVariable long productId, @RequestBody List<MultipartFile> multipartFiles) {
-        productImgService.save(multipartFiles, productId);
+        productImgService.save(productId, multipartFiles);
         return "이미지 업로드 하였습니다.";
     }
 
     @GetMapping("/list")
     public List<String> list(@PathVariable long productId) {
         return productImgService.findFilenames(productId);
+    }
+
+    @GetMapping("/{productImgId}")
+    public String detailsView(@PathVariable long productImgId) {
+        ProductImg productImg = productImgService.findOne(productImgId);
+        return productImg.getFilename();
+    }
+
+    @PatchMapping("/{productImgId}")
+    public String edit(@PathVariable long productImgId, @RequestParam MultipartFile multipartFile) {
+        ProductImg productImg = productImgService.edit(productImgId, multipartFile);
+        System.out.println(productImg.getId());
+        return productImg.getFilename();
     }
 
     @PostMapping("/delete")
