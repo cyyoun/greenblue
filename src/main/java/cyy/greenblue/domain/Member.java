@@ -25,10 +25,8 @@ public class Member {
     private Grade grade;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "")
+    @JoinColumn(name = "point_id")
     private Point point;
-
-
 
     @Column(name = "reg_date")
     private LocalDateTime regDate;

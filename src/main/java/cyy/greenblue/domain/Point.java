@@ -19,6 +19,6 @@ public class Point {
     private Review review;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_sheet_id")
-    private OrderSheet orderSheet;
+    @JoinColumn(name = "order_product_id")
+    private OrderProduct orderProduct;
 }

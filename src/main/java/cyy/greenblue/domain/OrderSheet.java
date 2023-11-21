@@ -4,6 +4,8 @@ import lombok.Getter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -13,18 +15,16 @@ public class OrderSheet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_sheet_id")
     private long id;
-    private int quantity;
-    private String code;
+    private String paymentStatus;
 
     @Column(name = "reg_date")
     private LocalDateTime regDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @OneToMany(mappedBy = "orderSheet")
+    private List<OrderProduct> orderProducts = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private Product product;
+    public OrderSheet() {
+        this.regDate = LocalDateTime.now();
+    }
 
 }
