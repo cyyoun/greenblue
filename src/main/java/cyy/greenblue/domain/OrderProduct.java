@@ -28,4 +28,9 @@ public class OrderProduct {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_sheet_id")
     private OrderSheet orderSheet;
+
+
+    public void updateOrderSheet(OrderSheet orderSheet) {
+        this.orderSheet = orderSheet;
+    }
 }
