@@ -21,7 +21,7 @@ public class CartController {
 
     @PostMapping("/delete")
     public String delete(@RequestBody List<Cart> carts) {
-        cartService.delete(carts);
+        cartService.deleteAll(carts);
         return "삭제되었습니다.";
     }
 

@@ -24,11 +24,11 @@ public class Cart {
 
     public Cart() {}
 
-    public void editQuantity(int quantity) {
+    public void updateQuantity(int quantity) {
         this.quantity = quantity;
     }
 
-    public void editCart(int quantity, Product product) {
+    public void updateCart(int quantity, Product product) {
         this.quantity = quantity;
         this.product = product;
     }

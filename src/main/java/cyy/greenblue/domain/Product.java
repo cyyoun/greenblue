@@ -39,4 +39,8 @@ public class Product {
         this.category = category;
         this.regDate = LocalDateTime.now();
     }
+
+    public void updateQuantity(int quantity) {
+        this.quantity = quantity;
+    }
 }
