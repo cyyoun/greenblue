@@ -51,7 +51,7 @@ public class CartService {
 
     public void editQuantity(Cart cart, int quantity) {
         Cart oriCart = findOne(cart.getId());
-        int newQuantity = oriCart.getQuantity() - quantity;
+        int newQuantity = oriCart.getQuantity() + quantity;
 
         if (newQuantity == 0) {
             deleteOne(oriCart);

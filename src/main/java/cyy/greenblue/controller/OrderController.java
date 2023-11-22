@@ -23,18 +23,31 @@ public class OrderController {
     private final ModelMapper modelMapper;
 
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody OrderRequestDto requestDto) {
+    public ResponseEntity<Object> order(@RequestBody OrderRequestDto requestDto) {
+        String paymentResult = requestDto.getPaymentResult();
         List<OrderProduct> orderProducts = requestDto.getOrderProducts();
-        OrderSheet orderSheet = requestDto.getOrderSheet();
-        String result = orderService.add(orderProducts, orderSheet);
-        if (result.equals("success")) {
+
+        if (paymentResult.equals("success")) {
+            OrderSheet orderSheet = orderService.add(orderProducts);
             List<OrderProductDto> list = orderService.findAllByOrderSheet(orderSheet).stream()
                     .map(orderProduct -> modelMapper.map(orderProduct, OrderProductDto.class))
                     .collect(Collectors.toList());
-
             return ResponseEntity.status(HttpStatus.OK).body(list);
-        }
+            }
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("주문 실패");
+    }
+
+    @PostMapping("/{orderSheetId}")
+    public ResponseEntity<Object> cancel(@PathVariable long orderSheetId, @RequestBody OrderRequestDto requestDto) {
+        String paymentResult = requestDto.getPaymentResult();
+
+        if (paymentResult.equals("success")) {
+            orderService.cancel(orderSheetId);
+            return ResponseEntity.status(HttpStatus.OK).body("취소 성공");
+
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("취소 실패");
     }
 
 

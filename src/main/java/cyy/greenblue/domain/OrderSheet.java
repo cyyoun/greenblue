@@ -19,7 +19,14 @@ public class OrderSheet {
     private LocalDateTime regDate;
 
     public OrderSheet() {
+    }
+
+    public OrderSheet(String status) {
+        this.status = status;
         this.regDate = LocalDateTime.now();
     }
 
+    public void updateStatus(String status) {
+        this.status = status;
+    }
 }

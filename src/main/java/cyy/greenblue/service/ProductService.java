@@ -38,7 +38,7 @@ public class ProductService {
 
     public void editQuantity(Product product, int quantity) {
         Product oriProduct = findOne(product.getId());
-        oriProduct.updateQuantity(oriProduct.getQuantity() - quantity);
+        oriProduct.updateQuantity(oriProduct.getQuantity() + quantity);
     }
 
     public void delete(long productId) {
