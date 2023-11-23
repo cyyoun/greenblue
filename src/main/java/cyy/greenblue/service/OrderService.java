@@ -7,12 +7,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Transactional
 @Service
 @RequiredArgsConstructor
 public class OrderService {
+
+    final String SUCCESS = "success";
+    final String CANCEL = "cancel";
+
 
     private final OrderSheetRepository orderSheetRepository;
     private final OrderProductRepository orderProductRepository;
@@ -22,18 +28,18 @@ public class OrderService {
     public OrderSheet add(List<OrderProduct> orderProducts) {
 
         //주문서 저장
-        OrderSheet orderSheet = new OrderSheet("success");
+        OrderSheet orderSheet = new OrderSheet(SUCCESS);
         orderSheetRepository.save(orderSheet);
 
         //주문상품 저장(주문서 외래키 일괄주입)
         orderProducts.forEach(orderProduct -> orderProduct.updateOrderSheet(orderSheet));
         orderProductRepository.saveAll(orderProducts);
 
-        //회원 장바구니 정보 가져오기
+        //회원, 장바구니 정보 가져오기
         Member member = orderProducts.stream().findAny().get().getMember();
         List<Cart> carts = cartService.findByMember(member);
 
-
+        //재고관리
         delStock(orderProducts, carts);
         return orderSheet;
     }
@@ -58,7 +64,7 @@ public class OrderService {
 
     public void cancel(long orderSheetId) {
         OrderSheet orderSheet = findOrderSheet(orderSheetId);
-        orderSheet.updateStatus("cancel");
+        orderSheet.updateStatus(CANCEL);
 
         List<OrderProduct> orderProducts = findAllByOrderSheet(orderSheet);
         addStock(orderProducts);
@@ -79,5 +85,17 @@ public class OrderService {
 
     public List<OrderProduct> findAllByMember(long memberId) {
         return orderProductRepository.findByMember(memberId);
+    }
+
+    public List<OrderSheet> findAllByRegDate(int amountToSubtract) {
+        LocalDateTime now = LocalDateTime.now(); //현재 시각
+        LocalDateTime hoursAgo = now.minus(amountToSubtract, ChronoUnit.HOURS); //now - amountToSubtract 시각
+        return orderSheetRepository.findByRegDateAndStatus(hoursAgo, SUCCESS);
+    }
+
+    public int calcPoint(OrderProduct orderProduct) {
+        double percent = (double) orderProduct.getMember().getGrade().getPercent() / 100;
+        int calcPrice = orderProduct.getProduct().getPrice() * orderProduct.getQuantity();
+        return (int) (percent * calcPrice);
     }
 }
