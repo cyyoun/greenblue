@@ -15,7 +15,7 @@ public class PointController {
     private final PointService pointService;
 
     @GetMapping("/member/{memberId}")
-    public void points(@PathVariable long memberId) {
-
+    public int points(@PathVariable long memberId) {
+        return pointService.currentPoint(memberId);
     }
 }

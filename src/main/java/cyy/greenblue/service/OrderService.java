@@ -16,10 +16,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderService {
 
-    final String SUCCESS = "success";
-    final String CANCEL = "cancel";
-
-
     private final OrderSheetRepository orderSheetRepository;
     private final OrderProductRepository orderProductRepository;
     private final ProductService productService;
@@ -28,12 +24,10 @@ public class OrderService {
     public OrderSheet add(List<OrderProduct> orderProducts) {
 
         //주문서 저장
-        OrderSheet orderSheet = new OrderSheet(SUCCESS);
-        orderSheetRepository.save(orderSheet);
+        OrderSheet orderSheet = saveOrderSheet();
 
         //주문상품 저장(주문서 외래키 일괄주입)
-        orderProducts.forEach(orderProduct -> orderProduct.updateOrderSheet(orderSheet));
-        orderProductRepository.saveAll(orderProducts);
+        saveOrderProducts(orderProducts, orderSheet);
 
         //회원, 장바구니 정보 가져오기
         Member member = orderProducts.stream().findAny().get().getMember();
@@ -42,6 +36,17 @@ public class OrderService {
         //재고관리
         delStock(orderProducts, carts);
         return orderSheet;
+    }
+
+    private OrderSheet saveOrderSheet() {
+        OrderSheet orderSheet = new OrderSheet(OrderStatus.SUCCESS);
+        orderSheetRepository.save(orderSheet);
+        return orderSheet;
+    }
+
+    private void saveOrderProducts(List<OrderProduct> orderProducts, OrderSheet orderSheet) {
+        orderProducts.forEach(orderProduct -> orderProduct.updateOrderSheet(orderSheet));
+        orderProductRepository.saveAll(orderProducts);
     }
 
     private void delStock(List<OrderProduct> orderProducts, List<Cart> carts) {
@@ -64,7 +69,7 @@ public class OrderService {
 
     public void cancel(long orderSheetId) {
         OrderSheet orderSheet = findOrderSheet(orderSheetId);
-        orderSheet.updateStatus(CANCEL);
+        orderSheet.updateStatus(OrderStatus.CANCEL);
 
         List<OrderProduct> orderProducts = findAllByOrderSheet(orderSheet);
         addStock(orderProducts);
@@ -87,10 +92,10 @@ public class OrderService {
         return orderProductRepository.findByMember(memberId);
     }
 
-    public List<OrderSheet> findAllByRegDate(int amountToSubtract) {
+    public List<OrderSheet> findAllByRegDate(int amountToSubtract, OrderStatus orderStatus) {
         LocalDateTime now = LocalDateTime.now(); //현재 시각
         LocalDateTime hoursAgo = now.minus(amountToSubtract, ChronoUnit.HOURS); //now - amountToSubtract 시각
-        return orderSheetRepository.findByRegDateAndStatus(hoursAgo, SUCCESS);
+        return orderSheetRepository.findByRegDateAndStatus(hoursAgo, orderStatus);
     }
 
     public int calcPoint(OrderProduct orderProduct) {

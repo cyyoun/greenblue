@@ -13,7 +13,9 @@ public class OrderSheet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_sheet_id")
     private Long id;
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus;
 
     @Column(name = "reg_date")
     private LocalDateTime regDate;
@@ -21,12 +23,12 @@ public class OrderSheet {
     public OrderSheet() {
     }
 
-    public OrderSheet(String status) {
-        this.status = status;
+    public OrderSheet(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
         this.regDate = LocalDateTime.now();
     }
 
-    public void updateStatus(String status) {
-        this.status = status;
+    public void updateStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
     }
 }

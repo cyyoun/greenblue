@@ -14,4 +14,10 @@ public class PointServiceTest {
     public void pointSchedulerTest() {
         pointService.orderPointAdd();
     }
+
+    @Test
+    void pointSchedulerTest2() {
+        pointService.orderPointDel();
+
+    }
 }

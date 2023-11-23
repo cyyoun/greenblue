@@ -57,7 +57,7 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("취소 실패");
     }
 
-    @GetMapping("/orders/user/{memberId}")
+    @GetMapping("/member/{memberId}")
     public List<OrderProductDto> list(@PathVariable long memberId) {
         List<OrderProduct> orderProducts = orderService.findAllByMember(memberId);
         List<OrderProductDto> orderProductDtos = changeDto(orderProducts);
