@@ -12,7 +12,7 @@ public class OrderSheet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_sheet_id")
-    private long id;
+    private Long id;
     private String status;
 
     @Column(name = "reg_date")

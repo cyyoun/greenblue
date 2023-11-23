@@ -49,6 +49,11 @@ spring:
 
 logging:
   level:
-    org.springframework: debug
+#    org.springframework: debug
     root: info
 #    org.hibernate.SQL: debug
+
+file:
+  dir:
+    product: D:\_cyng\fileStore\greenblue\img\product\
+    review: D:\_cyng\fileStore\greenblue\img\review\

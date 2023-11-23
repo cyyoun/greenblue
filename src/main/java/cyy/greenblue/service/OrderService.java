@@ -77,4 +77,7 @@ public class OrderService {
         return orderProductRepository.findByOrderSheet(orderSheet);
     }
 
+    public List<OrderProduct> findAllByMember(long memberId) {
+        return orderProductRepository.findByMember(memberId);
+    }
 }

@@ -11,7 +11,7 @@ public class ReviewImg {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "review_img_id")
-    private long id;
+    private Long id;
     private String filename;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -21,7 +21,7 @@ public class ProductImgController {
         return "이미지 업로드 하였습니다.";
     }
 
-    @GetMapping("/list")
+    @GetMapping("/productImgs")
     public List<String> list(@PathVariable long productId) {
         return productImgService.findFilenames(productId);
     }

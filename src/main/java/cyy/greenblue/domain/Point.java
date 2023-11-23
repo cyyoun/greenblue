@@ -10,7 +10,7 @@ public class Point {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "point_id")
-    private long id;
+    private Long id;
 
     private int point;
 

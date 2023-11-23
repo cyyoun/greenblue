@@ -11,10 +11,20 @@ import lombok.Setter;
 @Setter
 public class OrderProductDto {
 
-    private long id;
+    private Long id;
     private int quantity;
-    private Member member;
-    private Product product;
-    private OrderSheet orderSheet;
+    private Long memberId;
+    private Long productId;
+    private Long orderSheetId;
 
+    public OrderProductDto() {
+    }
+
+    public OrderProductDto(Long id, int quantity, Long memberId, Long productId, Long orderSheetId) {
+        this.id = id;
+        this.quantity = quantity;
+        this.memberId = memberId;
+        this.productId = productId;
+        this.orderSheetId = orderSheetId;
+    }
 }

@@ -37,19 +37,20 @@ public class CategoryController {
         return "삭제되었습니다.";
     }
 
-    @GetMapping("/list")
-    public List<CategoryDto> categories() { //대분류 카테고리 리스트
-        List<Category> categories = categoryService.findAllByDepth(1);
+
+    private List<CategoryDto> changeDto(List<Category> categories) {
         return categories.stream()
                 .map(category -> modelMapper.map(category, CategoryDto.class))
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/list/{categoryId}")
+    @GetMapping("/categories")
+    public List<CategoryDto> categories() { //대분류 카테고리 리스트
+        return changeDto(categoryService.findAllByDepth(1));
+    }
+
+    @GetMapping("/categories/{categoryId}")
     public List<CategoryDto> categories(@PathVariable int categoryId) {
-        List<Category> categories = categoryService.findByParent(categoryId);
-        return categories.stream()
-                .map(category -> modelMapper.map(category, CategoryDto.class))
-                .collect(Collectors.toList());
+        return changeDto(categoryService.findByParent(categoryId));
     }
 }

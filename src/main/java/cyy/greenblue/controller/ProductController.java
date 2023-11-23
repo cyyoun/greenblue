@@ -46,7 +46,7 @@ public class ProductController {
         return modelMapper.map(productService.findOne(productId), UserProductDto.class);
     }
 
-    @GetMapping("/list")
+    @GetMapping("/products")
     public List<UserProductDto> list() {
         List<Product> products = productService.findAll();
         return products.stream()
@@ -54,7 +54,7 @@ public class ProductController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/list/{categoryId}")
+    @GetMapping("/products/{categoryId}")
     public Page<UserProductDto> listByCategory(
             @PathVariable int categoryId,
             @RequestParam(name = "sort", defaultValue = "new") String sortBy,

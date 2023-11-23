@@ -11,5 +11,6 @@ public interface OrderProductRepository extends JpaRepository<OrderProduct, Long
     @Query("SELECT o FROM OrderProduct o WHERE o.orderSheet = :orderSheet")
     List<OrderProduct> findByOrderSheet(OrderSheet orderSheet);
 
-
+    @Query("SELECT o FROM OrderProduct o WHERE o.member.id = :memberId ")
+    List<OrderProduct> findByMember(long memberId);
 }

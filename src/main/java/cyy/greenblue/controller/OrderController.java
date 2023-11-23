@@ -6,7 +6,6 @@ import cyy.greenblue.dto.OrderProductDto;
 import cyy.greenblue.dto.OrderRequestDto;
 import cyy.greenblue.service.OrderService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,21 +19,30 @@ import java.util.stream.Collectors;
 public class OrderController {
 
     private final OrderService orderService;
-    private final ModelMapper modelMapper;
+
+    private List<OrderProductDto> changeDto(List<OrderProduct> orderProducts) {
+        return orderProducts.stream()
+                .map(orderProduct -> new OrderProductDto(
+                        orderProduct.getId(),
+                        orderProduct.getQuantity(),
+                        orderProduct.getMember().getId(),
+                        orderProduct.getProduct().getId(),
+                        orderProduct.getOrderSheet().getId()))
+                .collect(Collectors.toList());
+
+    }
 
     @PostMapping
     public ResponseEntity<Object> order(@RequestBody OrderRequestDto requestDto) {
         String paymentResult = requestDto.getPaymentResult();
         List<OrderProduct> orderProducts = requestDto.getOrderProducts();
 
-        if (paymentResult.equals("success")) {
+        if (paymentResult.equals("success")) { //결제 성공인 경우
             OrderSheet orderSheet = orderService.add(orderProducts);
-            List<OrderProductDto> list = orderService.findAllByOrderSheet(orderSheet).stream()
-                    .map(orderProduct -> modelMapper.map(orderProduct, OrderProductDto.class))
-                    .collect(Collectors.toList());
-            return ResponseEntity.status(HttpStatus.OK).body(list);
-            }
-
+            List<OrderProduct> getOrderProducts = orderService.findAllByOrderSheet(orderSheet);
+            List<OrderProductDto> orderProductDtos = changeDto(getOrderProducts);
+            return ResponseEntity.status(HttpStatus.OK).body(orderProductDtos);
+        }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("주문 실패");
     }
 
@@ -45,10 +53,15 @@ public class OrderController {
         if (paymentResult.equals("success")) {
             orderService.cancel(orderSheetId);
             return ResponseEntity.status(HttpStatus.OK).body("취소 성공");
-
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("취소 실패");
     }
 
+    @GetMapping("/orders/user/{memberId}")
+    public List<OrderProductDto> list(@PathVariable long memberId) {
+        List<OrderProduct> orderProducts = orderService.findAllByMember(memberId);
+        List<OrderProductDto> orderProductDtos = changeDto(orderProducts);
+        return orderProductDtos;
+    }
 
 }
