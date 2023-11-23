@@ -3,14 +3,12 @@ package cyy.greenblue.domain;
 import lombok.Builder;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Data
 @Entity
-@NoArgsConstructor
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,5 +43,13 @@ public class Member {
                 .provider(provider)
                 .providerId(providerId)
                 .build();
+    }
+
+    public Member() {
+        this.grade = Grade.BRONZE;
+    }
+
+    public void updateGrade(Grade grade) {
+        this.grade = grade;
     }
 }
