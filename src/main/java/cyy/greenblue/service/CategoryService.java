@@ -15,7 +15,7 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    private static int categoryQuantity = 30;
+    private static final int CATEGORY_QUANTITY = 30;
 
     public Category duplicateChk(Category category) { //이름, Parent 중복인 경우 확인
         return categoryRepository.findByNameAndParent(category.getName(), category.getParent());
@@ -35,8 +35,8 @@ public class CategoryService {
     public Category add(Category category) {
         if (duplicateChk(category) != null) {
             throw new RuntimeException("이미 해당 카테고리가 존재합니다.");
-        } else if (quantityChk(category) >= categoryQuantity) {
-            throw new RuntimeException("카테고리 수가 " + categoryQuantity + "개를 넘습니다.");
+        } else if (quantityChk(category) >= CATEGORY_QUANTITY) {
+            throw new RuntimeException("카테고리 수가 " + CATEGORY_QUANTITY + "개를 넘습니다.");
         } else {
             depthValue(category);
             categoryRepository.save(category);

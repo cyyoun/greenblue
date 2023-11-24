@@ -1,7 +1,6 @@
 package cyy.greenblue.service;
 
 import cyy.greenblue.domain.*;
-import cyy.greenblue.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,8 +17,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 @EnableScheduling
 public class MemberService {
-
-    private final OrderService orderService;
+    private static final int AMOUNT_SUBTRACT_3MONTH = 2190;
+    private final OrderProductService orderProductService;
+    private final OrderSheetService orderSheetService;
     Map<Member, Integer> map = new HashMap<>();
 
     @Scheduled(cron = "0 0 0 1 3/3 *") // 3개월마다 실행되도록 스케줄링
@@ -33,7 +33,7 @@ public class MemberService {
         allOrderSheets.addAll(orderSheets(OrderStatus.SUCCESS));
 
         for (OrderSheet orderSheet : allOrderSheets) {
-            for (OrderProduct orderProduct : orderService.findAllByOrderSheet(orderSheet)) {
+            for (OrderProduct orderProduct : orderProductService.findAllByOrderSheet(orderSheet)) {
                 Member member = orderProduct.getMember();
                 int price = orderProduct.getProduct().getPrice() * orderProduct.getQuantity();
                 map.put(member, map.getOrDefault(member, 0) + price);
@@ -47,8 +47,6 @@ public class MemberService {
 
     public Grade grading(int sumOrderPrice) {
         int price = sumOrderPrice / 10000;
-
-        System.out.println("price =============================== " + price);
 
         if (price < 30) {
             return Grade.BRONZE; //0 ~ 29
@@ -64,9 +62,6 @@ public class MemberService {
     }
 
     public List<OrderSheet> orderSheets(OrderStatus orderStatus) {
-        return orderService.findAllByRegDate(2190, orderStatus);
+        return orderSheetService.findAllByRegDate(AMOUNT_SUBTRACT_3MONTH, orderStatus);
     }
-
-
-
 }

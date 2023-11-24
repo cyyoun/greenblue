@@ -4,7 +4,8 @@ import cyy.greenblue.domain.OrderProduct;
 import cyy.greenblue.domain.OrderSheet;
 import cyy.greenblue.dto.OrderProductDto;
 import cyy.greenblue.dto.OrderRequestDto;
-import cyy.greenblue.service.OrderService;
+import cyy.greenblue.service.OrderProductService;
+import cyy.greenblue.service.OrderSheetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/order")
 public class OrderController {
 
-    private final OrderService orderService;
+    private final OrderProductService orderProductService;
+    private final OrderSheetService orderSheetService;
 
     private List<OrderProductDto> changeDto(List<OrderProduct> orderProducts) {
         return orderProducts.stream()
@@ -38,8 +40,8 @@ public class OrderController {
         List<OrderProduct> orderProducts = requestDto.getOrderProducts();
 
         if (paymentResult.equals("success")) { //결제 성공인 경우
-            OrderSheet orderSheet = orderService.add(orderProducts);
-            List<OrderProduct> getOrderProducts = orderService.findAllByOrderSheet(orderSheet);
+            OrderSheet orderSheet = orderProductService.add(orderProducts);
+            List<OrderProduct> getOrderProducts = orderProductService.findAllByOrderSheet(orderSheet);
             List<OrderProductDto> orderProductDtos = changeDto(getOrderProducts);
             return ResponseEntity.status(HttpStatus.OK).body(orderProductDtos);
         }
@@ -51,7 +53,10 @@ public class OrderController {
         String paymentResult = requestDto.getPaymentResult();
 
         if (paymentResult.equals("success")) {
-            orderService.cancel(orderSheetId);
+            OrderSheet orderSheet = orderSheetService.cancel(orderSheetId);
+
+            List<OrderProduct> orderProducts = orderProductService.findAllByOrderSheet(orderSheet);
+            orderProductService.addOrderQuantityByProduct(orderProducts);
             return ResponseEntity.status(HttpStatus.OK).body("취소 성공");
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("취소 실패");
@@ -59,7 +64,7 @@ public class OrderController {
 
     @GetMapping("/member/{memberId}")
     public List<OrderProductDto> list(@PathVariable long memberId) {
-        List<OrderProduct> orderProducts = orderService.findAllByMember(memberId);
+        List<OrderProduct> orderProducts = orderProductService.findAllByMember(memberId);
         List<OrderProductDto> orderProductDtos = changeDto(orderProducts);
         return orderProductDtos;
     }
