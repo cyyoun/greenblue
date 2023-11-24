@@ -23,14 +23,14 @@ public class OrderSheetService {
     }
 
     public OrderSheet save() {
-        OrderSheet orderSheet = new OrderSheet(OrderStatus.SUCCESS);
+        OrderSheet orderSheet = new OrderSheet();
         orderSheetRepository.save(orderSheet);
-        return orderSheet;
+        return findOne(orderSheet.getId());
     }
 
     public OrderSheet cancel(long orderSheetId) {
         OrderSheet orderSheet = findOne(orderSheetId);
-        orderSheet.updateStatus(OrderStatus.CANCEL);
+        orderSheet.updateOrderStatus(OrderStatus.CANCEL);
         return orderSheet;
     }
 

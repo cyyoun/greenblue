@@ -16,45 +16,45 @@ import java.util.List;
 @RequiredArgsConstructor
 @EnableScheduling
 public class PointService {
-    private static final int AMOUNT_SUBTRACT_3HOUR = 1;
     private final PointRepository pointRepository;
     private final OrderProductService orderProductService;
-    private final OrderSheetService orderSheetService;
 
     public int currentPoint(long memberId) {
         return pointRepository.findByMember(memberId);
     }
 
     @Scheduled(cron = "0 0/10 * * * ?") //10분마다 확인
-    public void orderPointAdd() { //포인트 적립
-        orderPointSave(1, OrderStatus.SUCCESS, OrderStatus.COMPLETE);
+    public void orderPointAdd() { //포인트 적립 (ORDER_SUCCESS → SUCCESS 로 변경)
+        List<OrderProduct> orderProducts = getAllByPointStatus(PointStatus.ORDER_SUCCESS);
+        save(orderProducts, PointStatus.SUCCESS);
     }
 
     @Scheduled(cron = "0 0/10 * * * ?") //10분마다 확인
-    public void orderPointDel() { //포인트 취소
-        orderPointSave(0, OrderStatus.CANCEL, OrderStatus.CANCEL_COMPLETE);
+    public void orderPointDel() { //포인트 취소 (ORDER_CANCEL → CANCEL 로 변경)
+        List<OrderProduct> orderProducts = getAllByPointStatus(PointStatus.ORDER_CANCEL);
+        update(orderProducts, PointStatus.CANCEL);
     }
 
-    public void orderPointSave(int multiplier, OrderStatus orderStatus, OrderStatus updateOrderStatus) {
-        for (OrderSheet orderSheet : orderSheetsByRegDate(orderStatus)) {
-            for (OrderProduct orderProduct : orderProductsByOrderSheet(orderSheet)) {
-                
-                orderProduct.getOrderSheet().updateStatus(updateOrderStatus); //주문 상태 변경
-                int calcedPoint = orderPointCalc(orderProduct) * multiplier; //적립금 계산
-                Member member = orderProduct.getMember();
+    private List<OrderProduct> getAllByPointStatus(PointStatus pointStatus) {
+        return orderProductService.findAllByPointStatus(pointStatus);
+    }
 
-                Point point = new Point(calcedPoint, orderProduct, member);
-                pointRepository.save(point); //point 저장
-            }
+    public void save(List<OrderProduct> orderProducts, PointStatus pointStatus) {
+        for (OrderProduct orderProduct : orderProducts) {
+            orderProduct.updatePointStatus(pointStatus); //적립 상태 변경
+            int calcedPoint = orderPointCalc(orderProduct) ; //적립금 계산
+            Member member = orderProduct.getMember();
+
+            Point point = new Point(calcedPoint, orderProduct, member);
+            pointRepository.save(point); //point 저장
         }
     }
 
-    private List<OrderProduct> orderProductsByOrderSheet(OrderSheet orderSheet) {
-        return orderProductService.findAllByOrderSheet(orderSheet);
-    }
-
-    private List<OrderSheet> orderSheetsByRegDate(OrderStatus orderStatus) {
-        return orderSheetService.findAllByRegDate(AMOUNT_SUBTRACT_3HOUR, orderStatus);
+    public void update(List<OrderProduct> orderProducts, PointStatus pointStatus) {
+        for (OrderProduct orderProduct : orderProducts) {
+            orderProduct.updatePointStatus(pointStatus); //적립 상태 변경
+            findByOrderProduct(orderProduct).updateSavedPoint(0); //적립금 취소
+        }
     }
 
     public int orderPointCalc(OrderProduct orderProduct) {
@@ -63,5 +63,7 @@ public class PointService {
         return (int) (percent * calcPrice); //적립률 * 가격 * 수량
     }
 
-
+    public Point findByOrderProduct(OrderProduct orderProduct) {
+        return pointRepository.findByOrderProduct(orderProduct);
+    }
 }

@@ -15,20 +15,18 @@ public class OrderSheet {
     private Long id;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "order_status")
     private OrderStatus orderStatus;
 
     @Column(name = "reg_date")
     private LocalDateTime regDate;
 
     public OrderSheet() {
-    }
-
-    public OrderSheet(OrderStatus orderStatus) {
-        this.orderStatus = orderStatus;
+        this.orderStatus = OrderStatus.SUCCESS;
         this.regDate = LocalDateTime.now();
     }
 
-    public void updateStatus(OrderStatus orderStatus) {
+    public void updateOrderStatus(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;
     }
 }

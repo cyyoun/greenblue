@@ -40,9 +40,8 @@ public class OrderController {
         List<OrderProduct> orderProducts = requestDto.getOrderProducts();
 
         if (paymentResult.equals("success")) { //결제 성공인 경우
-            OrderSheet orderSheet = orderProductService.add(orderProducts);
-            List<OrderProduct> getOrderProducts = orderProductService.findAllByOrderSheet(orderSheet);
-            List<OrderProductDto> orderProductDtos = changeDto(getOrderProducts);
+            List<OrderProduct> savedOrderProducts = orderProductService.add(orderProducts);
+            List<OrderProductDto> orderProductDtos = changeDto(savedOrderProducts);
             return ResponseEntity.status(HttpStatus.OK).body(orderProductDtos);
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("주문 실패");
@@ -54,9 +53,7 @@ public class OrderController {
 
         if (paymentResult.equals("success")) {
             OrderSheet orderSheet = orderSheetService.cancel(orderSheetId);
-
-            List<OrderProduct> orderProducts = orderProductService.findAllByOrderSheet(orderSheet);
-            orderProductService.addOrderQuantityByProduct(orderProducts);
+            orderProductService.cancel(orderSheet);
             return ResponseEntity.status(HttpStatus.OK).body("취소 성공");
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("취소 실패");

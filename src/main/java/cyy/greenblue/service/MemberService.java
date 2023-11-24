@@ -28,17 +28,17 @@ public class MemberService {
     }
 
     public void updateMemberGrade() {
-        List<OrderSheet> allOrderSheets = new ArrayList<>();
-        allOrderSheets.addAll(orderSheets(OrderStatus.COMPLETE));
-        allOrderSheets.addAll(orderSheets(OrderStatus.SUCCESS));
+        List<OrderSheet> orderSheets = orderSheets(OrderStatus.SUCCESS);
 
-        for (OrderSheet orderSheet : allOrderSheets) {
+        //회원별 누적 금액 계산
+        for (OrderSheet orderSheet : orderSheets) {
             for (OrderProduct orderProduct : orderProductService.findAllByOrderSheet(orderSheet)) {
                 Member member = orderProduct.getMember();
                 int price = orderProduct.getProduct().getPrice() * orderProduct.getQuantity();
                 map.put(member, map.getOrDefault(member, 0) + price);
             }
         }
+        //회원 등급 업데이트
         for (Member member : map.keySet()) {
             Integer sumOrderPrice = map.get(member);
             member.updateGrade(grading(sumOrderPrice));
