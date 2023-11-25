@@ -5,12 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class OrderSheetServiceTest {
+public class OrderProductServiceTest {
     @Autowired
-    private OrderSheetService orderSheetService;
+    private OrderProductService orderProductService;
 
     @Test
     public void scheduleTest() {
-        orderSheetService.updateAutoPurchaseStatus();
+        orderProductService.updateAutoPurchaseStatus();
     }
 }

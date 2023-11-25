@@ -59,9 +59,9 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("취소 실패");
     }
 
-    @PostMapping("/{orderSheetId}/confirm") //구매 확정
-    public String updateMemberPurchaseStatus(@PathVariable long orderSheetId) {
-        orderSheetService.updateMemberPurchaseStatus(orderSheetId);
+    @PostMapping("/{orderProductId}/confirm") //구매 확정
+    public String updateMemberPurchaseStatus(@PathVariable long orderProductId) {
+        orderProductService.updateMemberPurchaseStatus(orderProductId);
         return "구매 확정되었습니다.";
     }
 

@@ -1,7 +1,6 @@
 package cyy.greenblue.domain;
 
 import cyy.greenblue.domain.status.OrderStatus;
-import cyy.greenblue.domain.status.PurchaseStatus;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -20,10 +19,6 @@ public class OrderSheet {
     @Column(name = "order_status")
     private OrderStatus orderStatus;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "purchase_status")
-    private PurchaseStatus purchaseStatus;
-
     @Column(name = "reg_date")
     private LocalDateTime regDate;
 
@@ -36,7 +31,4 @@ public class OrderSheet {
         this.orderStatus = orderStatus;
     }
 
-    public void updatePurchaseStatus(PurchaseStatus purchaseStatus) {
-        this.purchaseStatus = purchaseStatus;
-    }
 }

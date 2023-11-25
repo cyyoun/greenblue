@@ -2,8 +2,10 @@ package cyy.greenblue.service;
 
 import cyy.greenblue.domain.*;
 import cyy.greenblue.domain.status.PointStatus;
+import cyy.greenblue.domain.status.PurchaseStatus;
 import cyy.greenblue.repository.OrderProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,28 @@ public class OrderProductService {
     private final OrderSheetService orderSheetService;
     private final ProductService productService;
     private final CartService cartService;
+
+    @Scheduled(cron = "0 0 10 * * ?")
+    public void updateAutoPurchaseStatus() { //주문 시간이 7일 이상인 경우 자동 구매확정
+        for (OrderSheet orderSheet : orderSheetService.findAllByPurchaseStatus()) {
+            for (OrderProduct orderProduct : findAllByOrderSheet(orderSheet)) {
+                updatePurchaseStatus(orderProduct);
+            }
+        }
+    }
+    public void updateMemberPurchaseStatus(long orderProductId) { //회원이 직접 구매확정
+        OrderProduct orderProduct = findOne(orderProductId);
+        updatePurchaseStatus(orderProduct);
+    }
+
+    public void updatePurchaseStatus(OrderProduct orderProduct) {
+        orderProduct.updatePurchaseStatus(PurchaseStatus.SUCCESS);
+    }
+
+    public OrderProduct findOne(long orderProductId) {
+        return orderProductRepository.findById(orderProductId).orElseThrow();
+    }
+
 
     public List<OrderProduct> add(List<OrderProduct> orderProducts) {
         OrderSheet orderSheet = orderSheetService.save(); //주문서 저장
@@ -52,7 +76,7 @@ public class OrderProductService {
         productService.editQuantity(orderProduct.getProduct(), orderProduct.getQuantity() * multiplier);
     }
 
-    private void editQuantityByCart(OrderProduct orderProduct, List<Cart> carts) {
+    public void editQuantityByCart(OrderProduct orderProduct, List<Cart> carts) {
         for (Cart cart : carts) {
             if (cart.getProduct() == orderProduct.getProduct()) {
                 cartService.editQuantity(cart, orderProduct.getQuantity());

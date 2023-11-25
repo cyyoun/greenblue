@@ -2,10 +2,8 @@ package cyy.greenblue.service;
 
 import cyy.greenblue.domain.OrderSheet;
 import cyy.greenblue.domain.status.OrderStatus;
-import cyy.greenblue.domain.status.PurchaseStatus;
 import cyy.greenblue.repository.OrderSheetRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,21 +19,9 @@ public class OrderSheetService {
     private static final int AMOUNT_SUBTRACT_7DAY = 168;
     private final OrderSheetRepository orderSheetRepository;
 
-    @Scheduled(cron = "0 0 10 * * ?")
-    public void updateAutoPurchaseStatus() { //7일 뒤 자동 구매확정
-        List<OrderSheet> orderSheets = findAfterTimeAndStatus(AMOUNT_SUBTRACT_7DAY, OrderStatus.SUCCESS);
-        orderSheets.forEach(orderSheet -> updatePurchaseStatus(orderSheet));
+    public List<OrderSheet> findAllByPurchaseStatus() { //7일 뒤 자동 구매확정
+        return findAfterTimeAndStatus(AMOUNT_SUBTRACT_7DAY, OrderStatus.SUCCESS);
     }
-
-    private static void updatePurchaseStatus(OrderSheet orderSheet) {
-        orderSheet.updatePurchaseStatus(PurchaseStatus.SUCCESS);
-    }
-
-    public void updateMemberPurchaseStatus(long orderSheetId) {
-        OrderSheet orderSheet = findOne(orderSheetId);
-        updatePurchaseStatus(orderSheet);
-    }
-
 
     public OrderSheet findOne(long orderSheetId) {
         return orderSheetRepository.findById(orderSheetId).orElseThrow();

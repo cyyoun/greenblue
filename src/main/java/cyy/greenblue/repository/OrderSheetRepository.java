@@ -16,7 +16,6 @@ public interface OrderSheetRepository extends JpaRepository<OrderSheet, Long> {
 
     @Query("SELECT o FROM OrderSheet o " +
             "WHERE o.regDate <= :hoursAgo " +
-            "AND o.orderStatus = :orderStatus " +
-            "AND o.purchaseStatus IS NULL")
+            "AND o.orderStatus = :orderStatus")
     List<OrderSheet> findAfterTimeAndStatus(LocalDateTime hoursAgo, OrderStatus orderStatus);
 }
