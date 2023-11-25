@@ -1,5 +1,6 @@
 package cyy.greenblue.domain;
 
+import cyy.greenblue.domain.status.PointStatus;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -17,10 +18,18 @@ public class Review {
     private String title;
     private String content;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "point_status")
+    private PointStatus pointStatus;
+
     @Column(name = "reg_date")
     private LocalDateTime regDate;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_product_id")
     private OrderProduct orderProduct;
+
+    public Review() {
+        this.regDate = LocalDateTime.now();
+    }
 }

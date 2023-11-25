@@ -36,6 +36,10 @@ public class OrderProduct {
     @JoinColumn(name = "order_sheet_id")
     private OrderSheet orderSheet;
 
+    public OrderProduct() {
+        this.purchaseStatus = PurchaseStatus.WAITING;
+    }
+
     public void updatePurchaseStatus(PurchaseStatus purchaseStatus) {
         this.purchaseStatus = purchaseStatus;
     }
