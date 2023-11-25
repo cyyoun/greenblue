@@ -1,4 +1,4 @@
-package cyy.greenblue.domain;
+package cyy.greenblue.domain.status;
 
 public enum OrderStatus {
     SUCCESS,

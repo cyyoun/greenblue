@@ -1,13 +1,12 @@
 package cyy.greenblue.service;
 
 import cyy.greenblue.domain.*;
+import cyy.greenblue.domain.status.OrderStatus;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +14,6 @@ import java.util.Map;
 @Transactional
 @Service
 @RequiredArgsConstructor
-@EnableScheduling
 public class MemberService {
     private static final int AMOUNT_SUBTRACT_3MONTH = 2190;
     private final OrderProductService orderProductService;
@@ -62,6 +60,6 @@ public class MemberService {
     }
 
     public List<OrderSheet> orderSheets(OrderStatus orderStatus) {
-        return orderSheetService.findAllByRegDate(AMOUNT_SUBTRACT_3MONTH, orderStatus);
+        return orderSheetService.findBeforeTimeAndStatus(AMOUNT_SUBTRACT_3MONTH, orderStatus);
     }
 }

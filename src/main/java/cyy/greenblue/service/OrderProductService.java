@@ -1,6 +1,7 @@
 package cyy.greenblue.service;
 
 import cyy.greenblue.domain.*;
+import cyy.greenblue.domain.status.PointStatus;
 import cyy.greenblue.repository.OrderProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

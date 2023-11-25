@@ -1,9 +1,9 @@
 package cyy.greenblue.service;
 
 import cyy.greenblue.domain.*;
+import cyy.greenblue.domain.status.PointStatus;
 import cyy.greenblue.repository.PointRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +14,6 @@ import java.util.List;
 @Transactional
 @Service
 @RequiredArgsConstructor
-@EnableScheduling
 public class PointService {
     private final PointRepository pointRepository;
     private final OrderProductService orderProductService;

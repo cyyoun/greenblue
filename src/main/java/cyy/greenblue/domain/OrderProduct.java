@@ -1,5 +1,6 @@
 package cyy.greenblue.domain;
 
+import cyy.greenblue.domain.status.PointStatus;
 import lombok.Getter;
 
 import javax.persistence.*;
