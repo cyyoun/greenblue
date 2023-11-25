@@ -1,6 +1,7 @@
 package cyy.greenblue.service;
 
 import cyy.greenblue.domain.OrderSheet;
+import cyy.greenblue.domain.status.DeliveryStatus;
 import cyy.greenblue.domain.status.OrderStatus;
 import cyy.greenblue.repository.OrderSheetRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +36,13 @@ public class OrderSheetService {
 
     public OrderSheet cancel(long orderSheetId) {
         OrderSheet orderSheet = findOne(orderSheetId);
-        orderSheet.updateOrderStatus(OrderStatus.CANCEL);
-        return orderSheet;
+        DeliveryStatus deliveryStatus = orderSheet.getDeliveryStatus();
+        if (deliveryStatus.equals(DeliveryStatus.WAITING)) {
+            throw new IllegalStateException("배송이 완료된 후 취소 바랍니다.");
+        } else {
+            orderSheet.updateOrderStatus(OrderStatus.CANCEL);
+            return orderSheet;
+        }
     }
 
     public List<OrderSheet> findBeforeTimeAndStatus(int amountToSubtract, OrderStatus orderStatus) {

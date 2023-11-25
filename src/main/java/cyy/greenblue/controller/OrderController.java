@@ -48,15 +48,10 @@ public class OrderController {
     }
 
     @PostMapping("/{orderSheetId}/cancel") //주문 취소
-    public ResponseEntity<Object> cancel(@PathVariable long orderSheetId, @RequestBody OrderRequestDto requestDto) {
-        String paymentResult = requestDto.getPaymentResult();
-
-        if (paymentResult.equals("success")) { //결제 취소가 성공인 경우
-            OrderSheet orderSheet = orderSheetService.cancel(orderSheetId);
-            orderProductService.cancel(orderSheet);
-            return ResponseEntity.status(HttpStatus.OK).body("취소 성공");
-        }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("취소 실패");
+    public ResponseEntity<Object> cancel(@PathVariable long orderSheetId) {
+        OrderSheet orderSheet = orderSheetService.cancel(orderSheetId);
+        orderProductService.cancel(orderSheet);
+        return ResponseEntity.status(HttpStatus.OK).body("취소 성공");
     }
 
     @PostMapping("/{orderProductId}/confirm") //구매 확정

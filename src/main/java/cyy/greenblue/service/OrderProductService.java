@@ -24,17 +24,17 @@ public class OrderProductService {
     public void updateAutoPurchaseStatus() { //주문 시간이 7일 이상인 경우 자동 구매확정
         for (OrderSheet orderSheet : orderSheetService.findAllByPurchaseStatus()) {
             for (OrderProduct orderProduct : findAllByOrderSheet(orderSheet)) {
-                updatePurchaseStatus(orderProduct);
+                updatePurchaseStatus(orderProduct, PurchaseStatus.SUCCESS);
             }
         }
     }
     public void updateMemberPurchaseStatus(long orderProductId) { //회원이 직접 구매확정
         OrderProduct orderProduct = findOne(orderProductId);
-        updatePurchaseStatus(orderProduct);
+        updatePurchaseStatus(orderProduct, PurchaseStatus.SUCCESS);
     }
 
-    public void updatePurchaseStatus(OrderProduct orderProduct) {
-        orderProduct.updatePurchaseStatus(PurchaseStatus.SUCCESS);
+    public void updatePurchaseStatus(OrderProduct orderProduct, PurchaseStatus purchaseStatus) {
+        orderProduct.updatePurchaseStatus(purchaseStatus);
     }
 
     public OrderProduct findOne(long orderProductId) {
