@@ -1,8 +1,6 @@
 package cyy.greenblue.controller;
 
-import cyy.greenblue.domain.Cart;
 import cyy.greenblue.domain.Member;
-import cyy.greenblue.repository.CartRepository;
 import cyy.greenblue.repository.MemberRepository;
 import cyy.greenblue.security.auth.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +23,6 @@ public class LoginController {
 
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final CartRepository cartRepository;
 
     @GetMapping(value= {"/login", "/"})
     public String loginForm() {

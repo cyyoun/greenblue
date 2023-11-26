@@ -2,6 +2,7 @@ package cyy.greenblue.service;
 
 import cyy.greenblue.domain.*;
 import cyy.greenblue.domain.status.OrderStatus;
+import cyy.greenblue.domain.status.PurchaseStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ public class MemberService {
     private static final int AMOUNT_SUBTRACT_3MONTH = 2190;
     private final OrderProductService orderProductService;
     private final OrderSheetService orderSheetService;
-    Map<Member, Integer> map = new HashMap<>();
+    private final Map<Member, Integer> map = new HashMap<>();
 
     @Scheduled(cron = "0 0 0 1 3/3 *") // 3개월마다 실행되도록 스케줄링
     public void scheduleMemberGradeUpdate() {
@@ -26,14 +27,18 @@ public class MemberService {
     }
 
     public void updateMemberGrade() {
-        List<OrderSheet> orderSheets = orderSheets(OrderStatus.SUCCESS);
+        List<OrderSheet> orderSheets = orderSheets(OrderStatus.ORDER_COMPLETE);
 
         //회원별 누적 금액 계산
         for (OrderSheet orderSheet : orderSheets) {
             for (OrderProduct orderProduct : orderProductService.findAllByOrderSheet(orderSheet)) {
+                PurchaseStatus purchaseStatus = orderProduct.getPurchaseStatus();
+                if (purchaseStatus == PurchaseStatus.PURCHASE_CONFIRM ||
+                        purchaseStatus == PurchaseStatus.ACCRUAL || purchaseStatus == PurchaseStatus.NON_ACCRUAL) {
                 Member member = orderProduct.getMember();
                 int price = orderProduct.getProduct().getPrice() * orderProduct.getQuantity();
                 map.put(member, map.getOrDefault(member, 0) + price);
+                }
             }
         }
         //회원 등급 업데이트
