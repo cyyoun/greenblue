@@ -52,10 +52,9 @@ public class OrderSheetService {
         OrderStatus orderStatus = orderSheet.getOrderStatus();
         DeliveryStatus deliveryStatus = orderSheet.getDeliveryStatus();
 
-        if (orderStatus.equals(OrderStatus.ORDER_COMPLETE) &&
-                deliveryStatus.equals(DeliveryStatus.DELIVERY_END)) {
+        if (orderStatus.equals(OrderStatus.ORDER_COMPLETE) && !deliveryStatus.equals(DeliveryStatus.DELIVERY_START)) {
             editOrderStatus(orderSheet, OrderStatus.PART_CANCEL);
-        } else if (deliveryStatus != (DeliveryStatus.DELIVERY_END)) {
+        } else if (deliveryStatus == DeliveryStatus.DELIVERY_START) {
             throw new IllegalArgumentException("배송 상태에서는 취소가 불가합니다.");
         } else {
             throw new IllegalArgumentException("이미 취소가 된 주문 건입니다.");
