@@ -2,7 +2,6 @@ package cyy.greenblue.service;
 
 import cyy.greenblue.domain.*;
 import cyy.greenblue.domain.status.OrderStatus;
-import cyy.greenblue.domain.status.PointStatus;
 import cyy.greenblue.domain.status.PurchaseStatus;
 import cyy.greenblue.repository.OrderProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,7 @@ public class OrderProductService {
         for (OrderSheet orderSheet : orderSheetService.findAllByOrderStatus()) {
             for (OrderProduct orderProduct : findAllByOrderSheet(orderSheet)) {
                 if (orderProduct.getPurchaseStatus() == PurchaseStatus.PURCHASE_UNCONFIRM) {
-                    editPurchaseConfirm(orderProduct);
+                    editPurchaseConfirm(orderProduct, PurchaseStatus.NON_ACCRUAL);
                 }
             }
         }
@@ -45,26 +44,25 @@ public class OrderProductService {
                throw new IllegalArgumentException("취소된 상품이 있습니다.");
         }
         for (OrderProduct orderProduct : orderProducts) {
-            editPurchaseConfirm(orderProduct);
+            editPurchaseConfirm(orderProduct, PurchaseStatus.PURCHASE_CONFIRM);
         }
     }
 
     public void onePurchaseConfirm(long orderProductId) {
         OrderProduct orderProduct = findOne(orderProductId);
         OrderStatus orderStatus = orderProduct.getOrderSheet().getOrderStatus();
+        PurchaseStatus purchaseStatus = orderProduct.getPurchaseStatus();
 
-        if (orderProduct.getPurchaseStatus() == PurchaseStatus.PURCHASE_UNCONFIRM &&
-                orderStatus == OrderStatus.ORDER_COMPLETE) {
-            editPurchaseConfirm(orderProduct);
-        } else if (orderProduct.getPurchaseStatus() != PurchaseStatus.PURCHASE_UNCONFIRM) {
+        if (purchaseStatus == PurchaseStatus.PURCHASE_UNCONFIRM && orderStatus == OrderStatus.ORDER_COMPLETE)
+            editPurchaseConfirm(orderProduct, PurchaseStatus.PURCHASE_CONFIRM);
+        else if (purchaseStatus != PurchaseStatus.PURCHASE_UNCONFIRM)
             throw new IllegalArgumentException("이미 구매확정된 상품입니다.");
-        } else {
+        else
             throw new IllegalArgumentException("취소된 상품입니다.");
-        }
     }
 
-    private static void editPurchaseConfirm(OrderProduct orderProduct) {
-        orderProduct.updatePurchaseStatus(PurchaseStatus.PURCHASE_CONFIRM);
+    public void editPurchaseConfirm(OrderProduct orderProduct, PurchaseStatus purchaseStatus) {
+        orderProduct.updatePurchaseStatus(purchaseStatus);
     }
 
     public OrderProduct findOne(long orderProductId) {
@@ -93,7 +91,7 @@ public class OrderProductService {
         }
     }
 
-    private void editQuantityByProduct(OrderProduct orderProduct, int multiplier) {
+    public void editQuantityByProduct(OrderProduct orderProduct, int multiplier) {
         productService.editQuantity(orderProduct.getProduct(), orderProduct.getQuantity() * multiplier);
     }
 
@@ -136,10 +134,6 @@ public class OrderProductService {
 
     public List<OrderProduct> findAllByMember(long memberId) {
         return orderProductRepository.findByMember(memberId);
-    }
-
-    public List<OrderProduct> findAllByPointStatus(PointStatus pointStatus) {
-        return orderProductRepository.findByPointStatus(pointStatus);
     }
 
 }

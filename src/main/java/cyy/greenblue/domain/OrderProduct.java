@@ -1,6 +1,5 @@
 package cyy.greenblue.domain;
 
-import cyy.greenblue.domain.status.PointStatus;
 import cyy.greenblue.domain.status.PurchaseStatus;
 import cyy.greenblue.domain.status.ReviewStatus;
 import lombok.Getter;
