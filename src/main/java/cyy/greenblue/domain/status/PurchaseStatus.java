@@ -1,7 +1,11 @@
 package cyy.greenblue.domain.status;
 
 public enum PurchaseStatus {
-    WAITING,
-    SUCCESS,
-    CANCEL;
+    PURCHASE_UNCONFIRM,
+    PURCHASE_CONFIRM,
+    ACCRUAL,
+    NON_ACCRUAL,
+    ALL_CANCEL,
+    PART_CANCEL
+
 }

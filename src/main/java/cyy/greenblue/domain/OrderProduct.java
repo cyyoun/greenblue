@@ -2,6 +2,7 @@ package cyy.greenblue.domain;
 
 import cyy.greenblue.domain.status.PointStatus;
 import cyy.greenblue.domain.status.PurchaseStatus;
+import cyy.greenblue.domain.status.ReviewStatus;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -17,8 +18,8 @@ public class OrderProduct {
     private int quantity;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "point_status")
-    private PointStatus pointStatus;
+    @Column(name = "review_status")
+    private ReviewStatus reviewStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "purchase_status")
@@ -37,7 +38,8 @@ public class OrderProduct {
     private OrderSheet orderSheet;
 
     public OrderProduct() {
-        this.purchaseStatus = PurchaseStatus.WAITING;
+        this.purchaseStatus = PurchaseStatus.PURCHASE_UNCONFIRM;
+        this.reviewStatus = ReviewStatus.UNWRITTEN;
     }
 
     public void updatePurchaseStatus(PurchaseStatus purchaseStatus) {
@@ -48,7 +50,7 @@ public class OrderProduct {
         this.orderSheet = orderSheet;
     }
 
-    public void updatePointStatus(PointStatus pointStatus) {
-        this.pointStatus = pointStatus;
+    public void updateReviewStatus(ReviewStatus reviewStatus) {
+        this.reviewStatus = reviewStatus;
     }
 }

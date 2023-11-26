@@ -11,6 +11,6 @@ public class OrderProductServiceTest {
 
     @Test
     public void scheduleTest() {
-        orderProductService.updateAutoPurchaseStatus();
+        orderProductService.autoPurchaseConfirm();
     }
 }

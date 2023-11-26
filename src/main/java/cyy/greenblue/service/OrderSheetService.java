@@ -20,8 +20,8 @@ public class OrderSheetService {
     private static final int AMOUNT_SUBTRACT_7DAY = 168;
     private final OrderSheetRepository orderSheetRepository;
 
-    public List<OrderSheet> findAllByPurchaseStatus() { //7일 뒤 자동 구매확정
-        return findAfterTimeAndStatus(AMOUNT_SUBTRACT_7DAY, OrderStatus.SUCCESS);
+    public List<OrderSheet> findAllByOrderStatus() { //7일 뒤 자동 구매확정
+        return findAfterTimeAndStatus(AMOUNT_SUBTRACT_7DAY, OrderStatus.ORDER_COMPLETE);
     }
 
     public OrderSheet findOne(long orderSheetId) {
@@ -34,15 +34,36 @@ public class OrderSheetService {
         return findOne(orderSheet.getId());
     }
 
-    public OrderSheet cancel(long orderSheetId) {
-        OrderSheet orderSheet = findOne(orderSheetId);
+    public void allCancel(OrderSheet orderSheet) {
+        OrderStatus orderStatus = orderSheet.getOrderStatus();
         DeliveryStatus deliveryStatus = orderSheet.getDeliveryStatus();
-        if (deliveryStatus.equals(DeliveryStatus.WAITING)) {
-            throw new IllegalStateException("배송이 완료된 후 취소 바랍니다.");
+
+        if (orderStatus == OrderStatus.ORDER_COMPLETE &&
+                deliveryStatus == DeliveryStatus.DELIVERY_ACCEPT) {
+            editOrderStatus(orderSheet, OrderStatus.ALL_CANCEL);
+        } else if (deliveryStatus != DeliveryStatus.DELIVERY_ACCEPT) {
+            throw new IllegalArgumentException("배송 상태에서는 취소가 불가합니다.");
         } else {
-            orderSheet.updateOrderStatus(OrderStatus.CANCEL);
-            return orderSheet;
+            throw new IllegalArgumentException("이미 취소가 된 주문 건입니다.");
         }
+    }
+
+    public void oneCancel(OrderSheet orderSheet) {
+        OrderStatus orderStatus = orderSheet.getOrderStatus();
+        DeliveryStatus deliveryStatus = orderSheet.getDeliveryStatus();
+
+        if (orderStatus.equals(OrderStatus.ORDER_COMPLETE) &&
+                deliveryStatus.equals(DeliveryStatus.DELIVERY_END)) {
+            editOrderStatus(orderSheet, OrderStatus.PART_CANCEL);
+        } else if (deliveryStatus != (DeliveryStatus.DELIVERY_END)) {
+            throw new IllegalArgumentException("배송 상태에서는 취소가 불가합니다.");
+        } else {
+            throw new IllegalArgumentException("이미 취소가 된 주문 건입니다.");
+        }
+    }
+
+    public void editOrderStatus(OrderSheet orderSheet, OrderStatus orderStatus) {
+        orderSheet.updateOrderStatus(orderStatus);
     }
 
     public List<OrderSheet> findBeforeTimeAndStatus(int amountToSubtract, OrderStatus orderStatus) {
@@ -54,6 +75,7 @@ public class OrderSheetService {
         LocalDateTime hoursAgo = getHoursAgo(amountToSubtract);
         return orderSheetRepository.findBeforeTimeAndStatus(hoursAgo, orderStatus);
     }
+
     public List<OrderSheet> findAfterTimeAndStatus(int amountToSubtract, OrderStatus orderStatus) {
         LocalDateTime hoursAgo = getHoursAgo(amountToSubtract);
         return orderSheetRepository.findAfterTimeAndStatus(hoursAgo, orderStatus);
@@ -61,7 +83,6 @@ public class OrderSheetService {
 
     private LocalDateTime getHoursAgo(int amountToSubtract) {
         LocalDateTime now = LocalDateTime.now(); //현재 시각
-        LocalDateTime hoursAgo = now.minus(amountToSubtract, ChronoUnit.HOURS); //now - amountToSubtract 시각
-        return hoursAgo;
+        return now.minus(amountToSubtract, ChronoUnit.HOURS); //now - amountToSubtract 시각
     }
 }

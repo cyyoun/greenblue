@@ -1,6 +1,7 @@
 package cyy.greenblue.domain.status;
 
 public enum OrderStatus {
-    SUCCESS,
-    CANCEL;
+    ORDER_COMPLETE,
+    ALL_CANCEL,
+    PART_CANCEL
 }

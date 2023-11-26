@@ -28,8 +28,8 @@ public class OrderSheet {
     private LocalDateTime regDate;
 
     public OrderSheet() {
-        this.orderStatus = OrderStatus.SUCCESS;
-        this.deliveryStatus = DeliveryStatus.INITIAL;
+        this.orderStatus = OrderStatus.ORDER_COMPLETE;
+        this.deliveryStatus = DeliveryStatus.DELIVERY_ACCEPT;
         this.regDate = LocalDateTime.now();
     }
 

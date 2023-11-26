@@ -1,8 +1,8 @@
 package cyy.greenblue.domain.status;
 
 public enum DeliveryStatus {
-    INITIAL,
-    WAITING,
-    SUCCESS;
+    DELIVERY_START,
+    DELIVERY_ACCEPT,
+    DELIVERY_END
 }
 
