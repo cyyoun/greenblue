@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,14 +24,21 @@ public class ReviewService {
 
     public Review add(Review review) {
         OrderProduct orderProduct = orderProductService.findOne(review.getOrderProduct().getId());
-        PurchaseStatus purchaseStatus = orderProduct.getPurchaseStatus();
-        ReviewStatus reviewStatus = orderProduct.getReviewStatus();
+        LocalDateTime before14days = LocalDateTime.now().minus(14, ChronoUnit.DAYS);
+        LocalDateTime purchaseDate = orderProduct.getPurchaseDate();
 
-        if (purchaseStatus != PurchaseStatus.PURCHASE_UNCONFIRM && reviewStatus == ReviewStatus.UNWRITTEN) {
-            orderProduct.updateReviewStatus(ReviewStatus.WRITTEN);
-            reviewRepository.save(review);
-        } else {
-            throw new IllegalArgumentException("리뷰를 작성할 수 없습니다.");
+        if (purchaseDate != null && purchaseDate.isAfter(before14days)) {
+            if (orderProduct.getPurchaseStatus() != PurchaseStatus.PURCHASE_UNCONFIRM &&
+                    orderProduct.getReviewStatus() == ReviewStatus.UNWRITTEN) {
+                orderProduct.updateReviewStatus(ReviewStatus.WRITTEN);
+                reviewRepository.save(review);
+            } else {
+                throw new IllegalArgumentException("리뷰를 작성할 수 없습니다.");
+            }
+        } else if (purchaseDate == null) {
+            throw new IllegalArgumentException("구매확정을 해야 합니다.");
+        } else if (purchaseDate.isBefore(before14days)) {
+            throw new IllegalArgumentException("리뷰 작성 기간이 지났습니다.");
         }
         return findOne(review.getId());
     }

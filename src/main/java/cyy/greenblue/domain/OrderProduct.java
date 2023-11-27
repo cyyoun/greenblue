@@ -5,6 +5,7 @@ import cyy.greenblue.domain.status.ReviewStatus;
 import lombok.Getter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -23,6 +24,9 @@ public class OrderProduct {
     @Enumerated(EnumType.STRING)
     @Column(name = "purchase_status")
     private PurchaseStatus purchaseStatus;
+
+    @Column(name = "purchase_date")
+    private LocalDateTime purchaseDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -43,6 +47,10 @@ public class OrderProduct {
 
     public void updatePurchaseStatus(PurchaseStatus purchaseStatus) {
         this.purchaseStatus = purchaseStatus;
+    }
+    public void updatePurchaseConfirm(PurchaseStatus purchaseStatus, LocalDateTime purchaseDate) {
+        this.purchaseStatus = purchaseStatus;
+        this.purchaseDate = purchaseDate;
     }
 
     public void updateOrderSheet(OrderSheet orderSheet) {

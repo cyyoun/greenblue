@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Transactional
@@ -26,7 +27,7 @@ public class OrderProductService {
         for (OrderSheet orderSheet : orderSheetService.findAllByOrderStatus()) {
             for (OrderProduct orderProduct : findAllByOrderSheet(orderSheet)) {
                 if (orderProduct.getPurchaseStatus() == PurchaseStatus.PURCHASE_UNCONFIRM) {
-                    editPurchaseConfirm(orderProduct, PurchaseStatus.NON_ACCRUAL);
+                    orderProduct.updatePurchaseStatus(PurchaseStatus.NON_ACCRUAL);
                 }
             }
         }
@@ -44,7 +45,7 @@ public class OrderProductService {
                throw new IllegalArgumentException("취소된 상품이 있습니다.");
         }
         for (OrderProduct orderProduct : orderProducts) {
-            editPurchaseConfirm(orderProduct, PurchaseStatus.PURCHASE_CONFIRM);
+            editPurchaseConfirm(orderProduct);
         }
     }
 
@@ -54,15 +55,14 @@ public class OrderProductService {
         PurchaseStatus purchaseStatus = orderProduct.getPurchaseStatus();
 
         if (purchaseStatus == PurchaseStatus.PURCHASE_UNCONFIRM && orderStatus == OrderStatus.ORDER_COMPLETE)
-            editPurchaseConfirm(orderProduct, PurchaseStatus.PURCHASE_CONFIRM);
+            editPurchaseConfirm(orderProduct);
         else if (purchaseStatus != PurchaseStatus.PURCHASE_UNCONFIRM)
             throw new IllegalArgumentException("이미 구매확정된 상품입니다.");
         else
             throw new IllegalArgumentException("취소된 상품입니다.");
     }
-
-    public void editPurchaseConfirm(OrderProduct orderProduct, PurchaseStatus purchaseStatus) {
-        orderProduct.updatePurchaseStatus(purchaseStatus);
+    public void editPurchaseConfirm(OrderProduct orderProduct) {
+        orderProduct.updatePurchaseConfirm(PurchaseStatus.PURCHASE_CONFIRM, LocalDateTime.now());
     }
 
     public OrderProduct findOne(long orderProductId) {
