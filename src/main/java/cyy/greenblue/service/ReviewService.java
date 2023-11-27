@@ -6,6 +6,7 @@ import cyy.greenblue.domain.status.PurchaseStatus;
 import cyy.greenblue.domain.status.ReviewStatus;
 import cyy.greenblue.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,9 +59,9 @@ public class ReviewService {
         reviewRepository.deleteById(reviewId);
     }
 
-    public List<Review> findAllByProductId(long productId) {
+    public List<Review> findAllByProductId(long productId, Pageable pageable) {
         List<OrderProduct> orderProducts = orderProductService.findAllByProductId(productId);
-        return reviewRepository.findAll()
+        return reviewRepository.findAll(pageable)
                 .stream()
                 .filter(review -> orderProducts.contains(review.getOrderProduct()))
                 .collect(Collectors.toList());

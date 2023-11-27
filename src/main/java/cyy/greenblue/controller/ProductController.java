@@ -4,7 +4,6 @@ import cyy.greenblue.domain.Product;
 import cyy.greenblue.dto.UserProductDto;
 import cyy.greenblue.service.ProductService;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
