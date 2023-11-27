@@ -65,14 +65,8 @@ public class OrderSheetService {
         orderSheet.updateOrderStatus(orderStatus);
     }
 
-    public List<OrderSheet> findBeforeTimeAndStatus(int amountToSubtract, OrderStatus orderStatus) {
-        /**
-         * ex)
-         * 현재 시각 ~ amountToSubtract(3시간) 전 시각에서
-         * 상태가 orderStatus(SUCCESS)인 OrderSheet 목록 가져오기
-         */
-        LocalDateTime hoursAgo = getHoursAgo(amountToSubtract);
-        return orderSheetRepository.findBeforeTimeAndStatus(hoursAgo, orderStatus);
+    public List<OrderSheet> findAllByTimeRange(LocalDateTime fromDateTime, LocalDateTime toDateTime) {
+        return orderSheetRepository.findByTimeRange(fromDateTime, toDateTime, OrderStatus.ORDER_COMPLETE);
     }
 
     public List<OrderSheet> findAfterTimeAndStatus(int amountToSubtract, OrderStatus orderStatus) {

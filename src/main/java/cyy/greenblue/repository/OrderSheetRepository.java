@@ -10,9 +10,9 @@ import java.util.List;
 
 public interface OrderSheetRepository extends JpaRepository<OrderSheet, Long> {
     @Query("SELECT o FROM OrderSheet o " +
-            "WHERE o.regDate >= :hoursAgo " +
+            "WHERE :fromDateTime <= o.regDate AND o.regDate <= :toDateTime " +
             "AND o.orderStatus = :orderStatus")
-    List<OrderSheet> findBeforeTimeAndStatus(LocalDateTime hoursAgo, OrderStatus orderStatus);
+    List<OrderSheet> findByTimeRange(LocalDateTime fromDateTime, LocalDateTime toDateTime, OrderStatus orderStatus);
 
     @Query("SELECT o FROM OrderSheet o " +
             "WHERE o.regDate <= :hoursAgo " +
