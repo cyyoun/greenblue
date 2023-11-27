@@ -79,7 +79,7 @@ public class OrderController {
 
     @GetMapping("/member/{memberId}")
     public List<OrderProductDto> list(@PathVariable long memberId) {
-        List<OrderProduct> orderProducts = orderProductService.findAllByMember(memberId);
+        List<OrderProduct> orderProducts = orderProductService.findAllByMemberId(memberId);
         List<OrderProductDto> orderProductDtos = changeDto(orderProducts);
         return orderProductDtos;
     }

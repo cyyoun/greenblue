@@ -132,8 +132,12 @@ public class OrderProductService {
         return orderProductRepository.findByOrderSheet(orderSheet);
     }
 
-    public List<OrderProduct> findAllByMember(long memberId) {
-        return orderProductRepository.findByMember(memberId);
+    public List<OrderProduct> findAllByMemberId(long memberId) {
+        return orderProductRepository.findByMemberId(memberId);
     }
 
+    public List<OrderProduct> findAllByProductId(long productId) {
+        return orderProductRepository.fidByProductId(productId);
+    }
 }
+
