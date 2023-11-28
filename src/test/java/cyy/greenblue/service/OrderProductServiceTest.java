@@ -13,4 +13,9 @@ public class OrderProductServiceTest {
     public void scheduleTest() {
         orderProductService.autoPurchaseConfirm();
     }
+
+    @Test
+    public void closeReviewTest() {
+        orderProductService.endOfReview();
+    }
 }

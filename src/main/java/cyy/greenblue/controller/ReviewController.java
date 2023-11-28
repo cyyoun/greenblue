@@ -2,9 +2,14 @@ package cyy.greenblue.controller;
 
 import cyy.greenblue.domain.Review;
 import cyy.greenblue.dto.ReviewDto;
+import cyy.greenblue.service.PointService;
 import cyy.greenblue.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +23,7 @@ import java.util.stream.Collectors;
 public class ReviewController {
     private final ReviewService reviewService;
     private final ModelMapper modelMapper;
+    private final PointService pointService;
 
     @PostMapping
     public ResponseEntity<Object> save(@RequestBody Review review) {
@@ -45,9 +51,33 @@ public class ReviewController {
         return ResponseEntity.status(HttpStatus.OK).body(reviewDto);
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<Object> allReview(@PathVariable long productId) {
-        List<Review> reviews = reviewService.findAllByProductId(productId);
+    @GetMapping("/reviews")
+    public ResponseEntity<Object> allReview(
+            @PathVariable long productId,
+            @RequestParam(name = "sort", defaultValue = "new") String sortBy,
+            @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Pageable dynamicPageable = pageable;
+
+        if (sortBy.equals("low-score")) {
+            dynamicPageable = PageRequest.of(
+                    pageable.getPageNumber(),
+                    pageable.getPageSize(),
+                    Sort.by("score").ascending());
+        } else if (sortBy.equals("high-score")) {
+            dynamicPageable = PageRequest.of(
+                    pageable.getPageNumber(),
+                    pageable.getPageSize(),
+                    Sort.by("score").descending());
+        } else if (sortBy.equals("new")) {
+            dynamicPageable = PageRequest.of(
+                    pageable.getPageNumber(),
+                    pageable.getPageSize(),
+                    Sort.by("id").descending()
+            );
+        }
+
+        List<Review> reviews = reviewService.findAllByProductId(productId, dynamicPageable);
         List<ReviewDto> reviewsDto = reviews.stream()
                 .map(review -> modelMapper.map(review, ReviewDto.class)).collect(Collectors.toList());
         return ResponseEntity.status(HttpStatus.OK).body(reviewsDto);

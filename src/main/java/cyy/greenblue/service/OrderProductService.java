@@ -3,6 +3,7 @@ package cyy.greenblue.service;
 import cyy.greenblue.domain.*;
 import cyy.greenblue.domain.status.OrderStatus;
 import cyy.greenblue.domain.status.PurchaseStatus;
+import cyy.greenblue.domain.status.ReviewStatus;
 import cyy.greenblue.repository.OrderProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,6 +31,19 @@ public class OrderProductService {
                     orderProduct.updatePurchaseStatus(PurchaseStatus.NON_ACCRUAL);
                 }
             }
+        }
+    }
+
+    @Scheduled(cron = "0 0 10 * * ?")
+    public void endOfReview() {
+        //구매확정 후 14일이 경과되면 리뷰 작성 종료
+        //1.오늘 날짜 기준으로 구매확정 날짜가 14일 이상이면서 리뷰 상태가 UNWRITTEN 인 orderProduct 값 가져오기
+        LocalDateTime before14Days = LocalDateTime.now().minusDays(14);
+        List<OrderProduct> orderProducts = findAllByTimeAndReviewStatus(before14Days, ReviewStatus.UNWRITTEN);
+
+        //2.리뷰적립금 지급하지 않음 상태로 변경 non_accrual
+        for (OrderProduct orderProduct : orderProducts) {
+            orderProduct.updateReviewStatus(ReviewStatus.NON_ACCRUAL);
         }
     }
 
@@ -136,8 +150,12 @@ public class OrderProductService {
         return orderProductRepository.findByMemberId(memberId);
     }
 
-    public List<OrderProduct> findAllByProductId(long productId) {
-        return orderProductRepository.fidByProductId(productId);
+    public List<OrderProduct> findAllByProductIdAndReviewStatus(long productId, List<ReviewStatus> reviewStatuses) {
+        return orderProductRepository.fidByProductId(productId, reviewStatuses);
     }
-}
 
+    public List<OrderProduct> findAllByTimeAndReviewStatus(LocalDateTime before14Days, ReviewStatus reviewStatus) {
+        return orderProductRepository.findByTimeAndReviewStatus(before14Days, reviewStatus);
+    }
+
+}

@@ -60,7 +60,9 @@ public class ReviewService {
     }
 
     public List<Review> findAllByProductId(long productId, Pageable pageable) {
-        List<OrderProduct> orderProducts = orderProductService.findAllByProductId(productId);
+        List<ReviewStatus> reviewStatuses = List.of(ReviewStatus.WRITTEN, ReviewStatus.ACCRUAL);
+        List<OrderProduct> orderProducts =
+                orderProductService.findAllByProductIdAndReviewStatus(productId, reviewStatuses);
         return reviewRepository.findAll(pageable)
                 .stream()
                 .filter(review -> orderProducts.contains(review.getOrderProduct()))
