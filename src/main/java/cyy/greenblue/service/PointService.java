@@ -4,11 +4,11 @@ import cyy.greenblue.domain.*;
 import cyy.greenblue.domain.status.PurchaseStatus;
 import cyy.greenblue.domain.status.ReviewStatus;
 import cyy.greenblue.repository.PointRepository;
-import cyy.greenblue.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 
 
 @Transactional
@@ -51,5 +51,9 @@ public class PointService {
         double percent = (double) orderProduct.getMember().getGrade().getPercent() / 100;
         int calcPrice = orderProduct.getProduct().getPrice() * orderProduct.getQuantity();
         return (int) (percent * calcPrice); //적립률 * 가격 * 수량
+    }
+
+    public List<Point> findAllByMemberId(long memberId) {
+        return pointRepository.findByMemberId(memberId);
     }
 }
