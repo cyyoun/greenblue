@@ -65,7 +65,7 @@ public class OrderController {
         OrderSheet orderSheet = orderSheetService.findOne(orderSheetId);
         List<OrderProduct> orderProducts = orderProductService.findAllByOrderSheet(orderSheet);
         for (OrderProduct orderProduct : orderProducts) {
-            pointService.add(orderProduct.getId());
+            pointService.addPurchaseConfirmPoint(orderProduct.getId());
         }
         return ResponseEntity.status(HttpStatus.OK).body("구매확정 되었습니다.");
     }
@@ -73,7 +73,7 @@ public class OrderController {
     @PostMapping("/{orderProductId}/confirm") //구매 확정
     public ResponseEntity<Object> onePurchaseConfirm(@PathVariable long orderProductId) {
         orderProductService.onePurchaseConfirm(orderProductId);
-        pointService.add(orderProductId);
+        pointService.addPurchaseConfirmPoint(orderProductId);
         return ResponseEntity.status(HttpStatus.OK).body("구매확정 되었습니다.");
     }
 

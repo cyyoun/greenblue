@@ -28,6 +28,7 @@ public class ReviewController {
     @PostMapping
     public ResponseEntity<Object> save(@RequestBody Review review) {
         Review saveReview = reviewService.add(review);
+        pointService.addReviewPoint(saveReview);
         return ResponseEntity.status(HttpStatus.OK).body(saveReview);
     }
 

@@ -2,7 +2,9 @@ package cyy.greenblue.service;
 
 import cyy.greenblue.domain.*;
 import cyy.greenblue.domain.status.PurchaseStatus;
+import cyy.greenblue.domain.status.ReviewStatus;
 import cyy.greenblue.repository.PointRepository;
+import cyy.greenblue.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +22,7 @@ public class PointService {
         return pointRepository.findByMember(memberId);
     }
 
-    public void add(long orderProductId) {
+    public void addPurchaseConfirmPoint(long orderProductId) {
         OrderProduct orderProduct = orderProductService.findOne(orderProductId);
         Member member = orderProduct.getMember();
         int points = orderPointCalc(orderProduct);
@@ -31,6 +33,17 @@ public class PointService {
             orderProductService.editPurchaseStatus(orderProduct, PurchaseStatus.ACCRUAL);
         } else {
             throw new IllegalArgumentException("포인트 적립 불가 상태 (원인 불명????????????)");
+        }
+    }
+
+    public void addReviewPoint(Review review) {
+        long orderProductId = review.getOrderProduct().getId();
+        OrderProduct orderProduct = orderProductService.findOne(orderProductId);
+        Member member = orderProduct.getMember();
+
+        if (orderProduct.getReviewStatus() == ReviewStatus.WRITTEN) {
+            Point point = new Point(review, member);
+            pointRepository.save(point);
         }
     }
 
