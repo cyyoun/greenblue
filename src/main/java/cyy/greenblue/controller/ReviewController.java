@@ -3,7 +3,6 @@ package cyy.greenblue.controller;
 import cyy.greenblue.domain.Review;
 import cyy.greenblue.dto.ReviewDto;
 import cyy.greenblue.service.PointService;
-import cyy.greenblue.service.ReviewImgService;
 import cyy.greenblue.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -25,22 +24,22 @@ import java.util.stream.Collectors;
 @RequestMapping("/product/{productId}/review")
 public class ReviewController {
     private final ReviewService reviewService;
-    private final ReviewImgService reviewImgService;
+
     private final ModelMapper modelMapper;
     private final PointService pointService;
 
     @Transactional
     @PostMapping
     public ResponseEntity<Object> save(@RequestPart Review review, @RequestPart List<MultipartFile> multipartFiles) {
-        Review saveReview = reviewService.add(review);
-        reviewImgService.save(saveReview, multipartFiles);
+        Review saveReview = reviewService.add(review, multipartFiles);
         pointService.addReviewPoint(saveReview);
         return ResponseEntity.status(HttpStatus.OK).body(saveReview);
     }
 
-    @PatchMapping("/{reviewId}")
-    public ResponseEntity<Object> edit(@RequestBody Review review, @PathVariable long reviewId) {
-        Review editReview = reviewService.edit(review, reviewId);
+    @PostMapping("/{reviewId}")
+    public ResponseEntity<Object> edit(@RequestPart Review review, @PathVariable long reviewId,
+                                       @RequestPart List<MultipartFile> multipartFiles) {
+        Review editReview = reviewService.edit(review, reviewId, multipartFiles);
         ReviewDto reviewDto = modelMapper.map(editReview, ReviewDto.class);
         return ResponseEntity.status(HttpStatus.OK).body(reviewDto);
     }

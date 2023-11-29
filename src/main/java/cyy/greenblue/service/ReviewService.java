@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -22,8 +23,9 @@ import java.util.stream.Collectors;
 public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final OrderProductService orderProductService;
+    private final ReviewImgService reviewImgService;
 
-    public Review add(Review review) {
+    public Review add(Review review, List<MultipartFile> multipartFiles) {
         OrderProduct orderProduct = orderProductService.findOne(review.getOrderProduct().getId());
         LocalDateTime before14days = LocalDateTime.now().minus(14, ChronoUnit.DAYS);
         LocalDateTime purchaseDate = orderProduct.getPurchaseDate();
@@ -32,7 +34,8 @@ public class ReviewService {
             if (orderProduct.getPurchaseStatus() != PurchaseStatus.PURCHASE_UNCONFIRM &&
                     orderProduct.getReviewStatus() == ReviewStatus.UNWRITTEN) {
                 orderProduct.updateReviewStatus(ReviewStatus.WRITTEN);
-                reviewRepository.save(review);
+                Review save = reviewRepository.save(review);
+                reviewImgService.save(save, multipartFiles);
             } else {
                 throw new IllegalArgumentException("리뷰를 작성할 수 없습니다.");
             }
@@ -44,10 +47,11 @@ public class ReviewService {
         return findOne(review.getId());
     }
 
-    public Review edit(Review review, long reviewId) {
+    public Review edit(Review review, long reviewId, List<MultipartFile> multipartFiles) {
         Review oriReview = findOne(reviewId);
         oriReview.updateReview(
                 review.getScore(), review.getTitle(), review.getContent());
+        reviewImgService.edit(oriReview, multipartFiles);
         return findOne(review.getId());
     }
 
