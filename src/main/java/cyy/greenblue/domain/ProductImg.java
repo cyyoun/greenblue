@@ -11,7 +11,6 @@ public class ProductImg {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_img_id")
     private Long id;
-    @Column(name = "filename")
     private String filename; //이미지 파일명
 
     @ManyToOne(fetch = FetchType.LAZY)

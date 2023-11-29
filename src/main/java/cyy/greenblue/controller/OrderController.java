@@ -10,6 +10,7 @@ import cyy.greenblue.service.PointService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,6 +60,8 @@ public class OrderController {
         orderProductService.oneCancel(orderProductId);
         return ResponseEntity.status(HttpStatus.OK).body("주문을 취소하였습니다.");
     }
+
+    @Transactional
     @PostMapping("/{orderSheetId}/confirms") //구매 상품 전부 구매 확정
     public ResponseEntity<Object> allPurchaseConfirm(@PathVariable long orderSheetId) {
         orderProductService.allPurchaseConfirm(orderSheetId);
@@ -70,6 +73,7 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body("구매확정 되었습니다.");
     }
 
+    @Transactional
     @PostMapping("/{orderProductId}/confirm") //구매 확정
     public ResponseEntity<Object> onePurchaseConfirm(@PathVariable long orderProductId) {
         orderProductService.onePurchaseConfirm(orderProductId);

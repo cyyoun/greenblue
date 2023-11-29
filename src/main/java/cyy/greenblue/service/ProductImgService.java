@@ -30,15 +30,15 @@ public class ProductImgService {
     public List<ProductImg> save(long productId, List<MultipartFile> multipartFiles) {
         Product product = productService.findOne(productId);
         List<ProductImg> saveProductImgs = new ArrayList<>();
-        List<String> saveFiles;
 
         try {
-             saveFiles = fileStore.saveFiles(multipartFiles, fileDir);//파일 이름 저장 List
+            List<String> saveFiles = fileStore.saveFiles(multipartFiles, fileDir);//파일 이름 저장 List
             for (String saveFile : saveFiles) {
                 ProductImg productImg = new ProductImg(saveFile, product);
                 saveProductImgs.add(productImg);
             }
         } catch (IOException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
         return productImageRepository.saveAll(saveProductImgs);

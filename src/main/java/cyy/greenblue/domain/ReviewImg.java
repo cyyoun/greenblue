@@ -18,4 +18,17 @@ public class ReviewImg {
     @JoinColumn(name = "review_id")
     private Review review;
 
+    public ReviewImg() {
+    }
+
+    public ReviewImg(String filename, Review review) {
+        this.filename = filename;
+        this.review = review;
+    }
+
+    public ReviewImg update(String filename) {
+        this.filename = filename;
+        return this;
+    }
+
 }

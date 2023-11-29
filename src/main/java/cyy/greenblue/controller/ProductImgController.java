@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/product/{productId}/image")
+@RequestMapping("/product/{productId}/img")
 public class ProductImgController {
 
     private final ProductImgService productImgService;

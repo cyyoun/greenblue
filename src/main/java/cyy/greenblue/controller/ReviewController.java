@@ -3,6 +3,7 @@ package cyy.greenblue.controller;
 import cyy.greenblue.domain.Review;
 import cyy.greenblue.dto.ReviewDto;
 import cyy.greenblue.service.PointService;
+import cyy.greenblue.service.ReviewImgService;
 import cyy.greenblue.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -12,7 +13,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,12 +25,15 @@ import java.util.stream.Collectors;
 @RequestMapping("/product/{productId}/review")
 public class ReviewController {
     private final ReviewService reviewService;
+    private final ReviewImgService reviewImgService;
     private final ModelMapper modelMapper;
     private final PointService pointService;
 
+    @Transactional
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody Review review) {
+    public ResponseEntity<Object> save(@RequestPart Review review, @RequestPart List<MultipartFile> multipartFiles) {
         Review saveReview = reviewService.add(review);
+        reviewImgService.save(saveReview, multipartFiles);
         pointService.addReviewPoint(saveReview);
         return ResponseEntity.status(HttpStatus.OK).body(saveReview);
     }
