@@ -2,7 +2,7 @@ package cyy.greenblue.domain;
 
 import lombok.Getter;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -19,7 +19,7 @@ public interface OrderProductRepository extends JpaRepository<OrderProduct, Long
     @Query("SELECT o FROM OrderProduct o " +
             "WHERE o.product.id = :productId " +
             "AND o.reviewStatus IN(:reviewStatuses)")
-    List<OrderProduct> fidByProductId(long productId, List<ReviewStatus> reviewStatuses);
+    List<OrderProduct> findByProductId(long productId, List<ReviewStatus> reviewStatuses);
 
     @Query("SELECT o FROM OrderProduct o " +
             "WHERE o.purchaseDate <= :before14Days " +

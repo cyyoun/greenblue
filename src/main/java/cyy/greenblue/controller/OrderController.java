@@ -37,6 +37,7 @@ public class OrderController {
     }
 
     @PostMapping
+    @Transactional
     public ResponseEntity<Object> order(@RequestBody OrderRequestDto requestDto) {
         String paymentResult = requestDto.getPaymentResult();
         List<OrderProduct> orderProducts = requestDto.getOrderProducts();

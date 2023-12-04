@@ -151,7 +151,7 @@ public class OrderProductService {
     }
 
     public List<OrderProduct> findAllByProductIdAndReviewStatus(long productId, List<ReviewStatus> reviewStatuses) {
-        return orderProductRepository.fidByProductId(productId, reviewStatuses);
+        return orderProductRepository.findByProductId(productId, reviewStatuses);
     }
 
     public List<OrderProduct> findAllByTimeAndReviewStatus(LocalDateTime before14Days, ReviewStatus reviewStatus) {

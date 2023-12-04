@@ -28,7 +28,7 @@ public class ReviewImgService {
 
     public List<ReviewImg> save(Review review, List<MultipartFile> multipartFiles) {
         List<ReviewImg> reviewImgs = new ArrayList<>();
-        if (multipartFiles.size() == 1 &&
+        if (multipartFiles.size() == 1 && //무조건 1개는 있음
                 multipartFiles.get(0).getOriginalFilename().equals("")) {
             System.out.println("리뷰에 첨부 파일이 없습니다." );
             return null;
@@ -53,13 +53,24 @@ public class ReviewImgService {
                 .map(reviewImg -> reviewImg.getFilename())
                 .collect(Collectors.toList());
 
-        fileStore.deleteFiles(filenames, fileDir);
         reviewImgRepository.deleteAll(oriReviewImgs);
-        reviewImgRepository.flush();
-        return save(review, multipartFiles);
+        List<ReviewImg> reviewImgs = save(review, multipartFiles);
+        fileStore.deleteFiles(filenames, fileDir);
+
+        return reviewImgs;
     }
 
     public List<ReviewImg> findAllByReview(Review review) {
         return reviewImgRepository.findByReview(review);
+    }
+
+    public void delete(Review review) {
+        List<ReviewImg> reviewImgs = findAllByReview(review);
+        reviewImgRepository.deleteAll(reviewImgs);
+
+        fileStore.updateFIleDir(fileDir);
+        for (ReviewImg reviewImg : reviewImgs) {
+            fileStore.deleteFile(reviewImg.getFilename());
+        }
     }
 }

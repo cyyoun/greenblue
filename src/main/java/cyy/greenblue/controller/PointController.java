@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("point")
+@RequestMapping("/point")
 public class PointController {
 
     private final PointService pointService;

@@ -44,6 +44,7 @@ public class ReviewController {
         return ResponseEntity.status(HttpStatus.OK).body(reviewDto);
     }
 
+    //리뷰 작성하면 삭제 불가하게 만들지 보류(협의 필요)
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<Object> delete(@PathVariable long reviewId) {
         reviewService.delete(reviewId);

@@ -2,7 +2,7 @@ package cyy.greenblue.domain;
 
 import lombok.Getter;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Getter
 @Entity

@@ -14,6 +14,10 @@ public class FileStore {
 
     private String fileDir;
 
+    public void updateFIleDir(String fileDir) {
+        this.fileDir = fileDir;
+    }
+
     private void updateFileDir(String fileDir) {
         this.fileDir = fileDir;
     }

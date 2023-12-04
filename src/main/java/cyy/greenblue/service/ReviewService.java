@@ -60,7 +60,10 @@ public class ReviewService {
     }
 
     public void delete(long reviewId) {
+        Review review = findOne(reviewId);
         reviewRepository.deleteById(reviewId);
+        reviewRepository.flush();
+        reviewImgService.delete(review);
     }
 
     public List<Review> findAllByProductId(long productId, Pageable pageable) {

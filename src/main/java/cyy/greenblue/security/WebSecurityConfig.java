@@ -1,6 +1,5 @@
 package cyy.greenblue.security;
 
-import cyy.greenblue.security.jwt.JwtAuthenticationFilter;
 import cyy.greenblue.security.oauth.PrincipalOauth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -8,7 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.filter.CorsFilter;
@@ -36,29 +34,27 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable();
-        http
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                .and()
-                .addFilter(corsFilter)
-                .httpBasic().disable()
-                .addFilter(new JwtAuthenticationFilter())
-                .authorizeHttpRequests((requests) -> requests
-                        .antMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
-                        .antMatchers("/join").permitAll()
-                        .antMatchers("/user/**").hasAnyRole("USER", "ADMIN", "MANAGER")
-                        .antMatchers("/hello/**").hasAnyRole("USER", "ADMIN", "MANAGER")
-                        .antMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER")
-                        .antMatchers("/manager/**").hasRole("MANAGER")
+        http.csrf(corsFilter-> corsFilter.disable());
+
+
+        http.authorizeHttpRequests((requests) -> requests
+                        .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
+                        .requestMatchers("/review/**", "/point/**", "/cart/**", "/product/**", "/category/**", "/member/**", "/order/**").permitAll() //임시
+                        .requestMatchers("/join").permitAll()
+                        .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN", "MANAGER")
+                        .requestMatchers("/hello/**").hasAnyRole("USER", "ADMIN", "MANAGER")
+                        .requestMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER")
+                        .requestMatchers("/manager/**").hasRole("MANAGER")
                         .anyRequest().authenticated())
-                .formLogin().disable()
+                .formLogin(httpSecurityFormLoginConfigurer -> httpSecurityFormLoginConfigurer.disable())
                 .logout((logout) -> logout.permitAll())
                 // 구글 로그인 완료 후 후처리가 필요함 → Tip. 액세스 토큰 + 사용자 프로필 정보 받음
                 .oauth2Login((oauth) -> oauth
                         .loginPage("/login")
                         .defaultSuccessUrl("/hello").permitAll()
-                        .userInfoEndpoint() //인증 후 사용자 정보 가져오는 엔드포인트 설정
-                        .userService(principalOauth2UserService)); //사용자 정보를 어떻게 처리할 건지 결정하는 사용자 정의 서비스 설정
+                        .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig.userService(principalOauth2UserService)));
+                        //인증 후 사용자 정보 가져오는 엔드포인트 설정
+                        //사용자 정보를 어떻게 처리할 건지 결정하는 사용자 정의 서비스 설정
 
         return http.build();
     }

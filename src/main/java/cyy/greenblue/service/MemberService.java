@@ -28,15 +28,10 @@ public class MemberService {
         LocalDateTime currentDateTime = LocalDateTime.now();
 
         // 예약된 작업이 실행된 월의 1일 00시 00분부터 이전 월의 마지막 날 23시 59분까지의 날짜 범위 계산
-        LocalDateTime fromDateTime = currentDateTime.minusMonths(3).toLocalDate().atStartOfDay();
-        LocalDateTime toDateTime = currentDateTime.minusDays(1).toLocalDate().atTime(23, 59, 59);
-
-        // 날짜와 시간 포맷 지정
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
-        // 계산된 날짜 범위 출력 또는 데이터 추출
-        System.out.println("작업이 실행된 시간: " + currentDateTime.format(formatter));
-        System.out.println("작업 범위: " + fromDateTime.format(formatter) + " ~ " + toDateTime.format(formatter));
+        LocalDateTime fromDateTime =
+                currentDateTime.minusMonths(3).toLocalDate().atStartOfDay();
+        LocalDateTime toDateTime =
+                currentDateTime.minusDays(1).toLocalDate().atTime(23, 59, 59);
 
         List<OrderSheet> orderSheets = orderSheetService.findAllByTimeRange(fromDateTime, toDateTime);
         updateMemberGrade(orderSheets);
@@ -49,7 +44,9 @@ public class MemberService {
             for (OrderProduct orderProduct : orderProductService.findAllByOrderSheet(orderSheet)) {
                 PurchaseStatus purchaseStatus = orderProduct.getPurchaseStatus();
                 if (purchaseStatus == PurchaseStatus.PURCHASE_CONFIRM ||
-                        purchaseStatus == PurchaseStatus.ACCRUAL || purchaseStatus == PurchaseStatus.NON_ACCRUAL) {
+                        purchaseStatus == PurchaseStatus.ACCRUAL ||
+                        purchaseStatus == PurchaseStatus.NON_ACCRUAL) {
+
                 Member member = orderProduct.getMember();
                 int price = orderProduct.getProduct().getPrice() * orderProduct.getQuantity();
                 map.put(member, map.getOrDefault(member, 0) + price);

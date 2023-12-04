@@ -4,7 +4,7 @@ import cyy.greenblue.domain.status.PurchaseStatus;
 import cyy.greenblue.domain.status.ReviewStatus;
 import lombok.Getter;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
