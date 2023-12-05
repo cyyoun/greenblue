@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Controller
@@ -41,7 +43,7 @@ public class LoginController {
 
     @PostMapping("/join")
     public String join(@ModelAttribute Member member) {
-        member.setRole("ROLE_USER");
+        member.setRole(List.of("ROLE_USER"));
         member.setPassword(bCryptPasswordEncoder.encode(member.getPassword()));
         member.setRegDate(LocalDateTime.now());
         memberRepository.save(member); //먼저 회원을 저장 (!! cart_id 가 없어서 오류 발생했기에 순서 중요)
