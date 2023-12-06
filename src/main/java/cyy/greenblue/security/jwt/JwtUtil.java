@@ -2,12 +2,11 @@ package cyy.greenblue.security.jwt;
 
 import cyy.greenblue.domain.JwtToken;
 import cyy.greenblue.domain.Member;
-import cyy.greenblue.repository.JwtTokenRepository;
+import cyy.greenblue.service.JwtTokenService;
 import cyy.greenblue.service.MemberService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,15 +17,16 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.stream.Collectors;
 
-@AllArgsConstructor
 @Component
 @Slf4j
 public class JwtUtil {
     private final Key key;
-    private JwtTokenRepository jwtTokenRepository;
-    private MemberService memberService;
+    private final MemberService memberService;
+    private final JwtTokenService jwtTokenService;
 
-    public JwtUtil(String secret) {
+    public JwtUtil(String secret, MemberService memberService, JwtTokenService jwtTokenService) {
+        this.memberService = memberService;
+        this.jwtTokenService = jwtTokenService;
         byte[] bytes = Decoders.BASE64.decode(secret);
         this.key = Keys.hmacShaKeyFor(bytes);
     }
@@ -36,8 +36,12 @@ public class JwtUtil {
         String refreshToken = createRefreshToken(authentication);
         Member member = findMemberByUsername(authentication.getName());
         JwtToken jwtToken = new JwtToken(member, refreshToken);
+        try {
+            jwtTokenService.save(jwtToken);
+        } catch (Exception e) {
+            jwtTokenService.editToken(jwtToken);
+        }
 
-        jwtTokenRepository.save(jwtToken);
         return new String[]{accessToken, refreshToken};
     }
 
@@ -74,7 +78,7 @@ public class JwtUtil {
 
     public String recreateAccessToken(Authentication authentication) {
         Member member = findMemberByUsername(authentication.getName());
-        String refreshToken = jwtTokenRepository.findByMember(member).getToken();
+        String refreshToken = jwtTokenService.findTokenByMember(member);
         if (validateToken(refreshToken)) {
             return createAccessToken(authentication);
         }

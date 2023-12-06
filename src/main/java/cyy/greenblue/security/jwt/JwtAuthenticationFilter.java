@@ -16,10 +16,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final JwtUtil jwtUtil;
-    private final AuthenticationManager authenticationManager;
+
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, AuthenticationManager authenticationManager) {
+        this.jwtUtil = jwtUtil;
+        super.setAuthenticationManager(authenticationManager);
+    }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -39,17 +42,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                         member.getUsername(),
                         member.getPassword());
 
-        Authentication authentication = authenticationManager.authenticate(authenticationToken);
-//        Authentication authentication
-//                = getAuthenticationManager().authenticate(authenticationToken);
-
-        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-        System.out.println("Authentication : " + principalDetails.getMember().getUsername());
-        return authentication;
+        setDetails(request, authenticationToken);
+        return this.getAuthenticationManager().authenticate(authenticationToken);
     }
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+        System.out.println(" ==================토큰 생성 시작================================== " );
         String[] tokens = jwtUtil.createTokenWhenLogin(authResult);
         response.addHeader(JwtProperties.AUTHORITIES_KEY, tokens[0]);
         response.addHeader(JwtProperties.CUSTOMIZE_HEADER, tokens[1]);

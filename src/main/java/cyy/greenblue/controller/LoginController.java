@@ -3,32 +3,35 @@ package cyy.greenblue.controller;
 import cyy.greenblue.domain.Member;
 import cyy.greenblue.repository.MemberRepository;
 import cyy.greenblue.security.auth.PrincipalDetails;
+import cyy.greenblue.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Controller
 @RequiredArgsConstructor
 public class LoginController {
 
-    private final MemberRepository memberRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final MemberService memberService;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    @GetMapping(value= {"/login", "/"})
+    @GetMapping("/login")
     public String loginForm() {
         return "login";
+    }
+
+    @PostMapping("/loginProc")
+    public String login(@RequestParam String username, @RequestParam String password, Model model) {
+        System.out.println("--------------------------------------여기는 컨트롤러ㅓ러러ㅓㅓㅓ");
+        return "redirect:/hello";
     }
 
     @GetMapping("/hello")
@@ -43,10 +46,10 @@ public class LoginController {
 
     @PostMapping("/join")
     public String join(@ModelAttribute Member member) {
-        member.setRole(List.of("ROLE_USER"));
-        member.setPassword(bCryptPasswordEncoder.encode(member.getPassword()));
+        member.setRole("ROLE_USER");
+        member.setPassword(passwordEncoder.encode(member.getPassword()));
         member.setRegDate(LocalDateTime.now());
-        memberRepository.save(member); //먼저 회원을 저장 (!! cart_id 가 없어서 오류 발생했기에 순서 중요)
+        memberService.save(member); //먼저 회원을 저장 (!! cart_id 가 없어서 오류 발생했기에 순서 중요)
 
         return "redirect:/";
     }

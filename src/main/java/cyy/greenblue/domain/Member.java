@@ -22,10 +22,6 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private Grade grade;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "point_id")
-    private Point point;
-
     @Column(name = "reg_date")
     private LocalDateTime regDate;
 

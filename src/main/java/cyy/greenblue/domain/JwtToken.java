@@ -23,4 +23,8 @@ public class JwtToken {
         this.token = token;
     }
 
+    public JwtToken updateToken(String token) {
+        this.token = token;
+        return this;
+    }
 }

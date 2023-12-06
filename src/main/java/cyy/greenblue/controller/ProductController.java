@@ -1,7 +1,7 @@
 package cyy.greenblue.controller;
 
 import cyy.greenblue.domain.Product;
-import cyy.greenblue.dto.UserProductDto;
+import cyy.greenblue.dto.MemberProductDto;
 import cyy.greenblue.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -41,20 +41,20 @@ public class ProductController {
     }
 
     @GetMapping("{productId}")
-    public UserProductDto detailsView(@PathVariable long productId) {
-        return modelMapper.map(productService.findOne(productId), UserProductDto.class);
+    public MemberProductDto detailsView(@PathVariable long productId) {
+        return modelMapper.map(productService.findOne(productId), MemberProductDto.class);
     }
 
     @GetMapping("/products")
-    public List<UserProductDto> list() {
+    public List<MemberProductDto> list() {
         List<Product> products = productService.findAll();
         return products.stream()
-                .map(product -> modelMapper.map(product, UserProductDto.class))
+                .map(product -> modelMapper.map(product, MemberProductDto.class))
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/products/{categoryId}")
-    public Page<UserProductDto> listByCategory(
+    public Page<MemberProductDto> listByCategory(
             @PathVariable int categoryId,
             @RequestParam(name = "sort", defaultValue = "new") String sortBy,
             @RequestParam(defaultValue = "0") int price1,
@@ -76,13 +76,13 @@ public class ProductController {
         }
 
         return productService.findAllByCategory(soldOut, price1, price2, categoryId, dynamicPageable)
-                .map(product -> modelMapper.map(product, UserProductDto.class));
+                .map(product -> modelMapper.map(product, MemberProductDto.class));
     }
 
     @GetMapping
-    public List<UserProductDto> search(@RequestParam String word) {
+    public List<MemberProductDto> search(@RequestParam String word) {
         return productService.findByWord(word).stream()
-                .map(product -> modelMapper.map(product, UserProductDto.class))
+                .map(product -> modelMapper.map(product, MemberProductDto.class))
                 .collect(Collectors.toList());
     }
 
