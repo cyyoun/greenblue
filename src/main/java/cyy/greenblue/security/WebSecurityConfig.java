@@ -4,6 +4,7 @@ import cyy.greenblue.security.auth.PrincipalAuthenticationManager;
 import cyy.greenblue.security.auth.PrincipalAuthenticationProvider;
 import cyy.greenblue.security.auth.PrincipalDetailsService;
 import cyy.greenblue.security.jwt.JwtAuthenticationFilter;
+import cyy.greenblue.security.jwt.JwtAuthorizationFilter;
 import cyy.greenblue.security.jwt.JwtProperties;
 import cyy.greenblue.security.jwt.JwtUtil;
 import cyy.greenblue.security.oauth.PrincipalOauth2UserService;
@@ -15,6 +16,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -43,32 +46,27 @@ public class WebSecurityConfig {
         http
                 .csrf(csrfConfigurer -> csrfConfigurer.disable())
                 .addFilterBefore(corsFilter, CorsFilter.class);
-        http.authorizeHttpRequests((requests) -> requests
+        http
+                .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/login", "/join", "/auth/loginProc", "/error/**").permitAll()
                         .requestMatchers("/review/**", "/point/**", "/cart/**", "/product/**", "/category/**", "/member/**", "/order/**").permitAll() //임시
-                        .requestMatchers("/join").permitAll()
-                        .requestMatchers("/loginProc").hasAnyRole("USER", "ADMIN", "MANAGER")
-                        .requestMatchers("/hello/**").hasAnyRole("USER", "ADMIN", "MANAGER")
+                        .requestMatchers("/auth/hello").hasAnyRole("USER", "ADMIN", "MANAGER")
                         .requestMatchers("/manager/**").hasRole("MANAGER")
                         .anyRequest().authenticated())
-                .formLogin(httpSecurityFormLoginConfigurer ->
-                        httpSecurityFormLoginConfigurer
-                                .loginPage("/login")
-                                .defaultSuccessUrl("/hello")
-                                .permitAll())
-                .logout((logout) -> logout.permitAll())
+                .formLogin(AbstractHttpConfigurer::disable)
+                .logout(LogoutConfigurer::permitAll);
+
                 // 구글 로그인 완료 후 후처리가 필요함 → Tip. 액세스 토큰 + 사용자 프로필 정보 받음
-                .oauth2Login((oauth) -> oauth
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/hello").permitAll()
-                        .userInfoEndpoint(userInfoEndpointConfig ->
-                                userInfoEndpointConfig.userService(principalOauth2UserService)));
-        //인증 후 사용자 정보 가져오는 엔드포인트 설정
-        //사용자 정보를 어떻게 처리할 건지 결정하는 사용자 정의 서비스 설정
+//                .oauth2Login((oauth) -> oauth
+//                        .loginPage("/login")
+//                        .defaultSuccessUrl("/auth/hello").permitAll()
+//                        .userInfoEndpoint(userInfoEndpointConfig ->
+//                                userInfoEndpointConfig.userService(principalOauth2UserService)));
 
-        http.addFilterBefore(new JwtAuthenticationFilter(jwtUtil(), authenticationManager()), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(authorizationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
-
 
     }
     @Bean
@@ -91,5 +89,14 @@ public class WebSecurityConfig {
     @Bean
     public PrincipalAuthenticationManager authenticationManager() {
         return new PrincipalAuthenticationManager(authenticationProvider());
+    }
+
+    @Bean
+    public JwtAuthenticationFilter authenticationFilter() {
+        return new JwtAuthenticationFilter(jwtUtil(), authenticationManager());
+    }
+
+    @Bean JwtAuthorizationFilter authorizationFilter() {
+        return new JwtAuthorizationFilter(jwtUtil());
     }
 }

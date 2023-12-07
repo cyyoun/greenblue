@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,5 +82,13 @@ public class MemberService {
 
     public List<Member> members () {
         return memberRepository.findAll();
+    }
+
+    public Member findByUsername(String username) {
+        return memberRepository.findByUsername(username);
+    }
+
+    public void save(Member member) {
+        memberRepository.save(member);
     }
 }

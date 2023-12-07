@@ -2,10 +2,8 @@ package cyy.greenblue.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cyy.greenblue.dto.MemberDto;
-import cyy.greenblue.security.auth.PrincipalDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,7 +24,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-
         System.out.println(" 로그인 시도중 💦 JwtAuthenticationFilter.attemptAuthentication");
         MemberDto member = null;
         //1. username, password 받기
@@ -48,10 +45,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        System.out.println(" ==================토큰 생성 시작================================== " );
         String[] tokens = jwtUtil.createTokenWhenLogin(authResult);
-        response.addHeader(JwtProperties.AUTHORITIES_KEY, tokens[0]);
-        response.addHeader(JwtProperties.CUSTOMIZE_HEADER, tokens[1]);
-        super.successfulAuthentication(request, response, chain, authResult);
+        response.addHeader(JwtProperties.HEADER, JwtProperties.TOKEN_PREFIX + tokens[0]);
+        response.addHeader(JwtProperties.CUSTOMIZE_HEADER, JwtProperties.TOKEN_PREFIX + tokens[1]);
     }
 }

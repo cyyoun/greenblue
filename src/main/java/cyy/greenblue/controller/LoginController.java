@@ -1,8 +1,8 @@
 package cyy.greenblue.controller;
 
 import cyy.greenblue.domain.Member;
-import cyy.greenblue.repository.MemberRepository;
 import cyy.greenblue.security.auth.PrincipalDetails;
+import cyy.greenblue.security.jwt.JwtUtil;
 import cyy.greenblue.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -10,7 +10,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -22,19 +21,19 @@ public class LoginController {
 
     private final MemberService memberService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    @GetMapping("/login")
+    @GetMapping(value = {"/login", "/"})
     public String loginForm() {
         return "login";
     }
 
-    @PostMapping("/loginProc")
-    public String login(@RequestParam String username, @RequestParam String password, Model model) {
-        System.out.println("--------------------------------------여기는 컨트롤러ㅓ러러ㅓㅓㅓ");
-        return "redirect:/hello";
+    @PostMapping("/auth/loginProc")
+    public String login() {
+        return "hello";
     }
 
-    @GetMapping("/hello")
+    @GetMapping("/auth/hello")
     public String helloForm() {
         return "hello";
     }

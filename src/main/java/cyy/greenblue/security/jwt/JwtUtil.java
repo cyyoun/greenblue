@@ -87,7 +87,7 @@ public class JwtUtil {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+            findClaims(token);
             return true;
         } catch (SecurityException | MalformedJwtException e) {
             log.error("잘못된 jwt 서명입니다.", e);
@@ -99,6 +99,14 @@ public class JwtUtil {
             log.error("jwt 토큰이 잘못되었습니다.", e);
         }
         return false;
+    }
+
+    public Claims findClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     private Member findMemberByUsername(String username) {
