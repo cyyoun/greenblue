@@ -1,5 +1,6 @@
 package cyy.greenblue.security;
 
+import cyy.greenblue.repository.MemberRepository;
 import cyy.greenblue.security.auth.PrincipalAuthenticationManager;
 import cyy.greenblue.security.auth.PrincipalAuthenticationProvider;
 import cyy.greenblue.security.auth.PrincipalDetailsService;
@@ -50,7 +51,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico").permitAll()
                         .requestMatchers("/login", "/join", "/auth/loginProc", "/error/**").permitAll()
-                        .requestMatchers("/review/**", "/point/**", "/cart/**", "/product/**", "/category/**", "/member/**", "/order/**").permitAll() //임시
+                        .requestMatchers("/review/**", "/point/**", "/cart/**", "/product/**",
+                                "/category/**", "/member/**", "/order/**").hasAnyRole("USER", "ADMIN", "MANAGER")
                         .requestMatchers("/auth/hello").hasAnyRole("USER", "ADMIN", "MANAGER")
                         .requestMatchers("/manager/**").hasRole("MANAGER")
                         .anyRequest().authenticated())
@@ -64,8 +66,8 @@ public class WebSecurityConfig {
 //                        .userInfoEndpoint(userInfoEndpointConfig ->
 //                                userInfoEndpointConfig.userService(principalOauth2UserService)));
 
-        http.addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterAfter(authorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+            .addFilter(authorizationFilter());
         return http.build();
 
     }
@@ -97,6 +99,6 @@ public class WebSecurityConfig {
     }
 
     @Bean JwtAuthorizationFilter authorizationFilter() {
-        return new JwtAuthorizationFilter(jwtUtil());
+        return new JwtAuthorizationFilter(authenticationManager(), jwtUtil(), memberService);
     }
 }

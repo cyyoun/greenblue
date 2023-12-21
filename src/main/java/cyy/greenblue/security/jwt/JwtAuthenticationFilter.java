@@ -2,6 +2,7 @@ package cyy.greenblue.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cyy.greenblue.dto.MemberDto;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,8 +13,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Component;
+
 import java.io.IOException;
 
+@Component
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final JwtUtil jwtUtil;
 
@@ -24,9 +28,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        System.out.println(" 로그인 시도중 💦 JwtAuthenticationFilter.attemptAuthentication");
         MemberDto member = null;
-        //1. username, password 받기
         try {
             ObjectMapper om = new ObjectMapper();
             member = om.readValue(request.getInputStream(), MemberDto.class);

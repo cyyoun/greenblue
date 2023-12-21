@@ -1,6 +1,5 @@
 package cyy.greenblue.controller;
 
-
 import cyy.greenblue.domain.Category;
 import cyy.greenblue.dto.CategoryDto;
 import cyy.greenblue.service.CategoryService;
@@ -12,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/category")
+@RequestMapping("/categories")
 @RequiredArgsConstructor
 public class CategoryController {
 
@@ -44,12 +43,12 @@ public class CategoryController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/categories")
+    @GetMapping
     public List<CategoryDto> categories() { //대분류 카테고리 리스트
         return changeDto(categoryService.findAllByDepth(1));
     }
 
-    @GetMapping("/categories/{categoryId}")
+    @GetMapping("/{categoryId}")
     public List<CategoryDto> categories(@PathVariable int categoryId) {
         return changeDto(categoryService.findByParent(categoryId));
     }
