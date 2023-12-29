@@ -20,14 +20,12 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<List<CategoryDto>> categories() { //대분류 카테고리 리스트
-        List<CategoryDto> categories = categoryService.findAllByDepth(1);
-        return ResponseEntity.status(HttpStatus.OK).body(categories);
+    public List<CategoryDto> categories() { //대분류 카테고리 리스트
+        return categoryService.findAllByDepth(1);
     }
 
     @GetMapping("/{categoryId}")
-    public ResponseEntity<List<CategoryDto>> categories(@PathVariable int categoryId) {
-        List<CategoryDto> categories = categoryService.findByParent(categoryId);
-        return ResponseEntity.status(HttpStatus.OK).body(categories);
+    public List<CategoryDto> categories(@PathVariable int categoryId) {
+        return categoryService.findByParent(categoryId);
     }
 }

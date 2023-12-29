@@ -1,5 +1,7 @@
 package cyy.greenblue.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import jakarta.persistence.*;
@@ -8,6 +10,8 @@ import java.util.List;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 public class Category {
 
     @Id
@@ -15,14 +19,19 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
-    private int depth = 1;
+    private int depth;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Category parent;
 
     @OneToMany(mappedBy = "parent")
-    private List<Category> subCategories = new ArrayList<>();
+    private List<Category> subCategories;
+
+    public Category() {
+        this.depth = 1;
+        this.subCategories = new ArrayList<>();
+    }
 
     public void updateDepth(int depth) {
         this.depth = depth;

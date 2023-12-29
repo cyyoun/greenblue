@@ -4,8 +4,6 @@ import cyy.greenblue.domain.Category;
 import cyy.greenblue.dto.CategoryDto;
 import cyy.greenblue.service.CategoryService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,20 +13,18 @@ public class AdminCategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<CategoryDto> save(@RequestBody Category category) {
-        CategoryDto saveCategory = categoryService.add(category);
-        return ResponseEntity.status(HttpStatus.OK).body(saveCategory);
+    public CategoryDto save(@RequestBody Category category) {
+        return categoryService.add(category);
     }
 
-    @PutMapping
-    public ResponseEntity<CategoryDto> edit(@RequestBody Category category) {
-        CategoryDto editCategory = categoryService.edit(category);
-        return ResponseEntity.status(HttpStatus.OK).body(editCategory);
+    @PatchMapping
+    public CategoryDto edit(@RequestBody Category category) {
+        return categoryService.edit(category);
     }
 
     @DeleteMapping("/{categoryId}")
-    public ResponseEntity<String> delete(@PathVariable int categoryId) {
+    public String delete(@PathVariable int categoryId) {
         categoryService.delete(categoryId);
-        return ResponseEntity.status(HttpStatus.OK).body("ok");
+        return "ok";
     }
 }
