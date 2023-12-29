@@ -1,13 +1,18 @@
 package cyy.greenblue.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,13 +36,11 @@ public class Product {
         this.regDate = LocalDateTime.now();
     }
 
-    public void update(String name, int price, int quantity, String description, Category category) {
-        this.name = name;
-        this.price = price;
-        this.quantity = quantity;
-        this.description = description;
-        this.category = category;
-        this.regDate = LocalDateTime.now();
+    public void update(Product product) {
+        this.name = product.getName();
+        this.price = product.getPrice();
+        this.description = product.getDescription();
+        this.category = product.getCategory();
     }
 
     public void updateQuantity(int quantity) {
