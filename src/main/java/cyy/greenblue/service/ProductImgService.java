@@ -2,6 +2,7 @@ package cyy.greenblue.service;
 
 import cyy.greenblue.domain.Product;
 import cyy.greenblue.domain.ProductImg;
+import cyy.greenblue.dto.ProductImgDto;
 import cyy.greenblue.repository.ProductImgRepository;
 import cyy.greenblue.store.FileStore;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -22,53 +21,61 @@ public class ProductImgService {
 
     @Value("${file.dir.product}")
     private String fileDir;
-
-    private final ProductImgRepository productImageRepository;
-    private final ProductService productService;
+    private final ProductImgRepository productImgRepository;
     private final FileStore fileStore;
 
-    public List<ProductImg> save(long productId, List<MultipartFile> multipartFiles) {
-        Product product = productService.findOne(productId);
-        List<ProductImg> saveProductImgs = new ArrayList<>();
+    public List<ProductImgDto> save(Product product, List<MultipartFile> multipartFiles) {
+        if (multipartFiles.size() == 1 && multipartFiles.get(0).isEmpty()) {
+            throw new RuntimeException("이미지가 없습니다.");
+        }
 
         try {
-            List<String> saveFiles = fileStore.saveFiles(multipartFiles, fileDir);//파일 이름 저장 List
-            for (String saveFile : saveFiles) {
-                ProductImg productImg = new ProductImg(saveFile, product);
-                saveProductImgs.add(productImg);
-            }
+            List<String> saveFilenames = fileStore.saveFiles(multipartFiles, fileDir);
+            List<ProductImg> productImgList = saveFilenames.stream()
+                    .map(saveFile -> new ProductImg(saveFile, product)).toList();
+            productImgRepository.saveAll(productImgList); //DB 저장
+            return getProductImgDtoList(productImgList);
+
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new RuntimeException("이미지 저장 실패");
         }
-        return productImageRepository.saveAll(saveProductImgs);
     }
 
-    public List<String> findFilenames(long productId) { //파일 조회
-        Product product = productService.findOne(productId);
-        return productImageRepository.findFilenames(product);
-    }
-
-    public void deleteFiles(List<ProductImg> productImgs) {
-        List<String> filenames = productImgs.stream()
-                .map(productImg -> productImg.getFilename())
-                .collect(Collectors.toList());
+    public void delete(List<ProductImg> productImgs) {
+        List<String> filenames = productImgs.stream().map(ProductImg::getFilename).toList();
         fileStore.deleteFiles(filenames, fileDir); //파일 삭제
-        productImageRepository.deleteAll(productImgs);
+        productImgRepository.deleteAll(productImgs);
     }
 
     public ProductImg findOne(long productImgId) {
-        return productImageRepository.findById(productImgId).orElseThrow();
+        return productImgRepository.findById(productImgId).orElseThrow();
     }
 
-    public ProductImg edit(long productImgId, MultipartFile multipartFile) {
-        ProductImg productImg = findOne(productImgId);
-        try {
-            String changedFile = fileStore.changeFile(productImg.getFilename(), multipartFile, fileDir);
-            productImg.update(changedFile);
-            return productImg;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    public List<ProductImgDto> edit(Product product,
+                                    List<ProductImg> deleteImgList,
+                                    List<MultipartFile> multipartFile) {
+        if (deleteImgList != null) {
+            delete(deleteImgList);
         }
+        if (multipartFile.size() != 1 || !multipartFile.get(0).isEmpty()) {
+            save(product, multipartFile);
+        }
+        List<ProductImg> productImgList = findAllByProduct(product);
+        return getProductImgDtoList(productImgList);
+    }
+
+    public List<ProductImg> findAllByProduct(Product product) {
+        return productImgRepository.findAllByProduct(product);
+    }
+
+    public List<ProductImgDto> getProductImgDtoList(List<ProductImg> productImgList) {
+        return productImgList.stream()
+                .map(productImg -> new ProductImgDto().toDto(productImg))
+                .toList();
+    }
+
+    public List<ProductImgDto> findDtoListByProduct(Product product) {
+        List<ProductImg> productImgList = findAllByProduct(product);
+        return getProductImgDtoList(productImgList);
     }
 }

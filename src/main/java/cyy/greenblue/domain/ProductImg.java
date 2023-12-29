@@ -3,9 +3,11 @@ package cyy.greenblue.domain;
 import lombok.Getter;
 
 import jakarta.persistence.*;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class ProductImg {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,16 +19,10 @@ public class ProductImg {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    public ProductImg() {
-    }
     public ProductImg(String filename, Product product) {
         this.filename = filename;
         this.product = product;
     }
 
-    public ProductImg update(String filename) {
-        this.filename = filename;
-        return this;
-    }
 }
 

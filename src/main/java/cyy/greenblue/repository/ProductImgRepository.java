@@ -9,6 +9,6 @@ import java.util.List;
 
 public interface ProductImgRepository extends JpaRepository<ProductImg, Long> {
 
-    @Query("SELECT p.filename FROM ProductImg p WHERE p.product = :product")
-    List<String> findFilenames(Product product);
+    @Query("SELECT p FROM ProductImg p WHERE p.product = :product")
+    List<ProductImg> findAllByProduct(Product product);
 }
