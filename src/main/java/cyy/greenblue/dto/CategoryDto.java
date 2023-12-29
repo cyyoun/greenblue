@@ -8,18 +8,18 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class CategoryDto {
-    private long categoryId;
+    private Integer id;
     private String name;
 
     @Builder
-    public CategoryDto(long categoryId, String name) {
-        this.categoryId = categoryId;
+    public CategoryDto(Integer id, String name) {
+        this.id = id;
         this.name = name;
     }
 
     public CategoryDto toDto(Category category) {
         return CategoryDto.builder()
-                .categoryId(category.getId())
+                .id(category.getId())
                 .name(category.getName())
                 .build();
     }
