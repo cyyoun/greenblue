@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Greenblue Home</title>
+    <link rel="stylesheet" th:href=@{"/css/product.css"}  href="../static/css/product.css">
+</head>
+<body>
+    <div class="container">
+        <div class="basic-bar">
+            <img class="logo-img" src="../static/img/logo.png">
+            <div>
+                <button class="basic-button" onclick="location.href='login.html'">로그인</button>
+                <button class="basic-button">회원가입</button>
+            </div>
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="검색어를 입력하세요">
+            <button class="search-button">검색</button>
+        </div>
+        
+        <div class="menu-bar">
+            <button class="menu-button">상의</button>        
+            <button class="menu-button">하의</button>
+            <button class="menu-button">치마</button>
+            <button class="menu-button">원피스</button>
+            <button class="menu-button">모자</button>
+            <button class="menu-button">가방</button>
+            <button class="menu-button">신발</button>
+            <button class="menu-button">악세서리</button>
+        </div>
+
+        <div class="item-info">
+            <img src="../static/img/맨투맨1.png" class="item-img">
+            <div class="item">
+                <div class="item-name">What 맨투맨</div>
+                <div class="item-price">79,000\</div>
+                <div class="item-quantity">수량 : <input type="text" placeholder="1"></div>
+                <input type="submit" class="button-cart" value="장바구니">
+                <input type="submit" class="button-order" value="주문">
+
+                
+                <table>
+                    <tr>
+                        <td><img src="../static/img/맨투맨1_디테일1.png" class="detail-img"></td>
+                        <td><img src="../static/img/맨투맨1_디테일2.png" class="detail-img"></td>
+                        <td><img src="../static/img/맨투맨1_디테일3.png" class="detail-img"></td>
+                        <td><img src="../static/img/맨투맨1_디테일4.png" class="detail-img"></td>
+                        <td><img src="../static/img/맨투맨1_디테일5.png" class="detail-img"></td>
+                    </tr>
+                    <tr>
+                        <td><img src="../static/img/맨투맨1.png" class="detail-img"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="reviews">
+            <h2>🙂 작성 후기가 없습니다.</h2>
+            <h2>🙂 전체 평점 9.0 점</h2>
+            <div class="radio-btns">필터 : 
+                <label>최신순</label>
+                <input type="radio" name="score" id="new" checked>
+                <label>높은 별점순</label>
+                <input type="radio" name="score" id="high-score">
+                <label>낮은 별점순</label>
+                <input type="radio" name="score" id="log-score">            
+            </div>
+
+            <div class="review">
+                <div class="title">좋은 제품입니다!</div>
+                <div class="rating">⭐⭐⭐⭐⭐</div>
+                <div class="content">
+                    매우 만족스러운 제품입니다. 추천합니다.
+                    매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.
+                    매우 만족스러운 제품입니다. 추천합니다.
+                    매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.매우 만족스러운 제품입니다. 추천합니다.
+                </div>               
+                <div class="review-image">
+                    <img src="../static/img/맨투맨1_디테일5.png" alt="제품 이미지">
+                </div>
+                <div class="date">작성일: 2024-01-03</div>
+            </div>
+            
+            <div class="review">
+                <div class="title">좋은 디자인, 아쉬운 핏</div>
+                <div class="rating">⭐⭐⭐⭐</div>
+                <div class="content">디자인은 매우 마음에 듭니다.</div>
+                <div class="review-image">
+                    <img src="../static/img/맨투맨1_디테일3.png" alt="제품 이미지">
+                </div>
+                <div class="date">작성일: 2024-01-01</div>
+            </div>
+            
+        </div>
+
+
+        <div class="pagination">
+            <a href="#">&laquo;</a>
+            <a href="#" onclick="changePage(1)" class="active">1</a>
+            <a href="#" onclick="changePage(2)">2</a>
+            <a href="#" onclick="changePage(3)">3</a>
+            <a href="#" onclick="changePage(4)">4</a>
+            <a href="#" onclick="changePage(5)">5</a>
+            <a href="#">&raquo;</a>
+        </div>
+    </div>
+</body>
+</html>
