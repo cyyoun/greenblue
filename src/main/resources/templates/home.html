@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Greenblue Home</title>
+    <link rel="stylesheet" th:href=@{"/css/home.css"}  href="../static/css/home.css">
+</head>
+<body>
+    
+    <div class="container">
+        <div class="basic-bar">
+            <img class="logo-img" src="../static/img/logo.png">
+            <div>
+                <button class="basic-button" onclick="location.href='login.html'">로그인</button>
+                <button class="basic-button">회원가입</button>
+            </div>
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="검색어를 입력하세요">
+            <button class="search-button">검색</button>
+        </div>
+        
+        <div class="menu-bar">
+            <button class="menu-button">상의</button>        
+            <button class="menu-button">하의</button>
+            <button class="menu-button">치마</button>
+            <button class="menu-button">원피스</button>
+            <button class="menu-button">모자</button>
+            <button class="menu-button">가방</button>
+            <button class="menu-button">신발</button>
+            <button class="menu-button">악세서리</button>
+        </div>
+
+        <ul class="horizontal-menu">
+            <li><a class="submenu" href="#">티셔츠</a></li>
+            <li><a class="submenu" href="#">맨투맨</a></li>
+            <li><a class="submenu" href="#">후드티</a></li>
+            <li><a class="submenu" href="#">니트</a></li>
+            <li><a class="submenu" href="#">반팔티</a></li>
+            <li><a class="submenu" href="#">나시</a></li>
+        </ul> 
+
+        <div class="category">  상의 > 맨투맨 </div>
+        <form method="post" class="condition">
+            <div>필터 :    
+                <label for="new">최신순</label>
+                <input type="radio" name="order" id="new" checked>
+                <label for="low-price">낮은 가격순</label>
+                <input type="radio" name="order" id="low-price">
+                <label for="high-price">높은 가격순</label>
+                <input type="radio" name="order" id="high-price"> 
+            </div>
+            <div>
+                <label for="startPrice">금액 : </label>
+                <input type="text" id="startPrice" class="price"> ~ 
+                <input type="text" class="price"> 
+            
+                <label for="soldout-chk">품절제외</label>
+                <input type="checkbox" id="soldout-chk">
+            </div> 
+            <div>
+                <button type="submit" class="search-button">검색</button> 
+                <input type="reset" class="search-button" value="초기화">
+            </div>
+        </form>  
+
+        <table>
+            <tr>
+                <td>
+                    <a href="product.html" class="item-text">
+                        <div><img src="../static/img/맨투맨1.png" class="item-img"></div>
+                        <div>Wilson 맨투맨</div>
+                        <div>99,000 \</div>
+                    </a>
+                </td>
+                <td>
+                    <a href="http://naver.com" class="item-text">
+                        <div><img src="../static/img/맨투맨2.png" class="item-img"></div>
+                        <div>Covernat violet 맨투맨</div>
+                        <div>99,000 \</div>
+                    </a>
+                </td>
+                <td>
+                    <a href="http://naver.com" class="item-text">
+                        <div><img src="../static/img/맨투맨3.png" class="item-img"></div>
+                        <div>Ebbets 맨투맨</div>
+                        <div>49,800 \</div>
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="http://naver.com" class="item-text">
+                        <div><img src="../static/img/맨투맨4.png" class="item-img"></div>
+                        <div>Covernat green 맨투맨</div>
+                        <div>99,000 \</div>
+                    </a>
+                </td>
+                <td>
+                    <a href="http://naver.com" class="item-text">
+                        <div><img src="../static/img/맨투맨5.png" class="item-img"></div>
+                        <div>What 맨투맨</div>
+                        <div>79,000 \</div>
+                    </a>
+                </td>
+                <td>
+                    <a href="http://naver.com" class="item-text">
+                        <div><img src="../static/img/맨투맨2.png" class="item-img"></div>
+                        <div>Covernat violet 맨투맨</div>
+                        <div>99,000 \</div>
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="http://naver.com" class="item-text">
+                        <div><img src="../static/img/맨투맨1.png" class="item-img"></div>
+                        <div>Wilson 맨투맨</div>
+                        <div>99,000 \</div>
+                    </a>
+                </td>
+         </tr>
+        </table>
+
+        <div class="pagination">
+            <a href="#">&laquo;</a>
+            <a href="#" onclick="changePage(1)" class="active">1</a>
+            <a href="#" onclick="changePage(2)">2</a>
+            <a href="#" onclick="changePage(3)">3</a>
+            <a href="#" onclick="changePage(4)">4</a>
+            <a href="#" onclick="changePage(5)">5</a>
+            <a href="#">&raquo;</a>
+        </div>
+    </div>    
+</body>
+</html>

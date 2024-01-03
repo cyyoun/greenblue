@@ -1,0 +1,55 @@
+body {
+    /* body 요소에 text-align을 사용하여 가운데 정렬 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* 화면 높이에 맞추어 세로 가운데 정렬 */
+    margin: 0; /* body의 기본 마진 제거 */
+ }
+ .container {
+    text-align: center; /* 왼쪽 정렬 */
+    max-width: 400px; /* 원하는 최대 너비 */
+    width: 100%; /* 화면 크기에 맞게 조절 */
+}
+
+.logo-img {
+    max-width: 250px; /* 이미지의 최대 가로 크기 */
+    width: auto; /* 비율을 유지하면서 이미지 크기 조절 */
+    height: auto;
+}
+
+.error-login {
+    font-size: 12px;
+    color: red;
+    font-weight: bold;
+}
+.join {
+    margin: 10px;
+}
+  
+.join input[type="text"],
+.join input[type="password"],
+.join input[type="email"] {
+    width: 60%; /* 너비를 100%로 설정 */
+    padding: 10px; /* 내부 여백 설정 */
+    margin-bottom: 10px; /* 입력 필드 사이 간격 조정 */
+}
+
+.button-join, .button-back {
+    cursor: pointer;
+    height: 100%;
+    padding: 13px 20px; /* Updated padding to 13px top/bottom and 20px left/right */
+    border: none;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.button-join {
+    background-color: rgba(127, 163, 195, 0.2);
+    color: #49769e;
+}
+
+.button-back {
+    background-color: rgba(226, 77, 139, 0.1);
+    color: #b370bd;
+}
