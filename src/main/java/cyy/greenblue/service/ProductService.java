@@ -89,16 +89,17 @@ public class ProductService {
         return pageable;
     }
 
-    public Page<ProductDto> findAllByCategory(String soldOut, int startPrice,
+    public List<ProductDto> findAllByCategory(String soldOut, int startPrice,
                                               int endPrice, int categoryId, Pageable pageable) {
         Category category = categoryService.findOne(categoryId);
         Page<Product> products;
-        if (soldOut.equals("n")) { //품절 제외
-            products = productRepository.soldOut_N(startPrice, endPrice, category, pageable);
+        if (soldOut.equals("y")) { //품절 포함
+            products = productRepository.soldOut_Y(startPrice, endPrice, category, pageable); //품절 제외
         } else {
-            products = productRepository.soldOut_Y(startPrice, endPrice, category, pageable); //품절 포함
+            products = productRepository.soldOut_N(startPrice, endPrice, category, pageable);
         }
-        return products.map(product -> new ProductDto().toDto(product, mainImgService.findDtoByProduct(product)));
+        return products.map(product ->new ProductDto()
+                .toDto(product, mainImgService.findDtoByProduct(product))).toList();
 
     }
 

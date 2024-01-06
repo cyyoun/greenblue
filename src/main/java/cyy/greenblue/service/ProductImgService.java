@@ -4,7 +4,7 @@ import cyy.greenblue.domain.Product;
 import cyy.greenblue.domain.ProductImg;
 import cyy.greenblue.dto.ProductImgDto;
 import cyy.greenblue.repository.ProductImgRepository;
-import cyy.greenblue.store.FileStore;
+import cyy.greenblue.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ public class ProductImgService {
     @Value("${file.dir.product}")
     private String fileDir;
     private final ProductImgRepository productImgRepository;
-    private final FileStore fileStore;
+    private final FileUtil fileUtil;
 
     public List<ProductImgDto> save(Product product, List<MultipartFile> multipartFiles) {
         if (multipartFiles.size() == 1 && multipartFiles.get(0).isEmpty()) {
@@ -30,7 +30,7 @@ public class ProductImgService {
         }
 
         try {
-            List<String> saveFilenames = fileStore.saveFiles(multipartFiles, fileDir);
+            List<String> saveFilenames = fileUtil.saveFiles(multipartFiles, fileDir);
             List<ProductImg> productImgList = saveFilenames.stream()
                     .map(saveFile -> new ProductImg(saveFile, product)).toList();
             productImgRepository.saveAll(productImgList); //DB 저장
@@ -43,12 +43,8 @@ public class ProductImgService {
 
     public void delete(List<ProductImg> productImgs) {
         List<String> filenames = productImgs.stream().map(ProductImg::getFilename).toList();
-        fileStore.deleteFiles(filenames, fileDir); //파일 삭제
+        fileUtil.deleteFiles(filenames, fileDir); //파일 삭제
         productImgRepository.deleteAll(productImgs);
-    }
-
-    public ProductImg findOne(long productImgId) {
-        return productImgRepository.findById(productImgId).orElseThrow();
     }
 
     public List<ProductImgDto> edit(Product product,
