@@ -34,35 +34,17 @@ public class OrderSheetService {
         return findOne(orderSheet.getId());
     }
 
-    public void allCancel(OrderSheet orderSheet) {
+    public static boolean cancelConfirm(OrderSheet orderSheet) {
         OrderStatus orderStatus = orderSheet.getOrderStatus();
         DeliveryStatus deliveryStatus = orderSheet.getDeliveryStatus();
 
-        if (orderStatus == OrderStatus.ORDER_COMPLETE &&
-                deliveryStatus == DeliveryStatus.DELIVERY_ACCEPT) {
-            editOrderStatus(orderSheet, OrderStatus.ALL_CANCEL);
-        } else if (deliveryStatus != DeliveryStatus.DELIVERY_ACCEPT) {
-            throw new IllegalArgumentException("배송 상태에서는 취소가 불가합니다.");
-        } else {
-            throw new IllegalArgumentException("이미 취소가 된 주문 건입니다.");
-        }
-    }
-
-    public void oneCancel(OrderSheet orderSheet) {
-        OrderStatus orderStatus = orderSheet.getOrderStatus();
-        DeliveryStatus deliveryStatus = orderSheet.getDeliveryStatus();
-
-        if (orderStatus.equals(OrderStatus.ORDER_COMPLETE) && !deliveryStatus.equals(DeliveryStatus.DELIVERY_START)) {
-            editOrderStatus(orderSheet, OrderStatus.PART_CANCEL);
+        if (orderStatus == OrderStatus.ORDER_COMPLETE && deliveryStatus == DeliveryStatus.DELIVERY_ACCEPT) {
+            return true;
         } else if (deliveryStatus == DeliveryStatus.DELIVERY_START) {
-            throw new IllegalArgumentException("배송 상태에서는 취소가 불가합니다.");
+            throw new RuntimeException("배송 상태에서는 취소가 불가합니다.");
         } else {
-            throw new IllegalArgumentException("이미 취소가 된 주문 건입니다.");
+            throw new RuntimeException("알 수 없는 오류입니다.");
         }
-    }
-
-    public void editOrderStatus(OrderSheet orderSheet, OrderStatus orderStatus) {
-        orderSheet.updateOrderStatus(orderStatus);
     }
 
     public List<OrderSheet> findAllByTimeRange(LocalDateTime fromDateTime, LocalDateTime toDateTime) {

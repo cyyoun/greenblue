@@ -1,92 +1,45 @@
 package cyy.greenblue.controller;
 
-import cyy.greenblue.domain.OrderProduct;
-import cyy.greenblue.domain.OrderSheet;
+import  cyy.greenblue.domain.OrderProduct;
 import cyy.greenblue.dto.OrderProductDto;
-import cyy.greenblue.dto.OrderRequestDto;
 import cyy.greenblue.service.OrderProductService;
-import cyy.greenblue.service.OrderSheetService;
 import cyy.greenblue.service.PointService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/order")
+@RequestMapping("/orders")
 public class OrderController {
 
     private final OrderProductService orderProductService;
     private final PointService pointService;
-    private final OrderSheetService orderSheetService;
-
-    private List<OrderProductDto> changeDto(List<OrderProduct> orderProducts) {
-        return orderProducts.stream()
-                .map(orderProduct -> new OrderProductDto(
-                        orderProduct.getId(),
-                        orderProduct.getQuantity(),
-                        orderProduct.getMember().getId(),
-                        orderProduct.getProduct().getId(),
-                        orderProduct.getOrderSheet().getId()))
-                .collect(Collectors.toList());
-    }
 
     @PostMapping
-    @Transactional
-    public ResponseEntity<Object> order(@RequestBody OrderRequestDto requestDto) {
-        String paymentResult = requestDto.getPaymentResult();
-        List<OrderProduct> orderProducts = requestDto.getOrderProducts();
+    public List<OrderProductDto> order(@RequestBody List<OrderProduct> orderProducts, Authentication authentication) {
+        return orderProductService.add(orderProducts, authentication);
+    }
 
-        if (paymentResult.equals("success")) { //결제 성공인 경우
-            List<OrderProduct> savedOrderProducts = orderProductService.add(orderProducts);
-            List<OrderProductDto> orderProductDtos = changeDto(savedOrderProducts);
-            return ResponseEntity.status(HttpStatus.OK).body(orderProductDtos);
+    @PostMapping("/cancels")
+    public String orderCancels(@RequestBody List<Long> orderProductIdList) {
+        orderProductService.cancel(orderProductIdList);
+        return "ok";
+    }
+
+    @PostMapping("/confirms")
+    public String purchaseConfirms(@RequestBody List<OrderProductDto> orderProductDtoList) {
+        orderProductService.purchaseConfirm(orderProductDtoList);
+        for (OrderProductDto orderProductDto : orderProductDtoList) {
+            pointService.addPurchaseConfirmPoint(orderProductDto.getId());
         }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("주문에 실패하였습니다.");
+        return "ok";
     }
 
-    @PostMapping("/{orderSheetId}/cancels") //주문 취소
-    public ResponseEntity<Object> allCancel(@PathVariable long orderSheetId) {
-        orderProductService.allCancel(orderSheetId);
-        return ResponseEntity.status(HttpStatus.OK).body("주문을 취소하였습니다.");
+    @GetMapping
+    public List<OrderProductDto> list(Authentication authentication) {
+        return  orderProductService.findAllByAuthentication(authentication);
     }
-
-    @PostMapping("/{orderProductId}/cancel")
-    public ResponseEntity<Object> oneCancel(@PathVariable long orderProductId) {
-        orderProductService.oneCancel(orderProductId);
-        return ResponseEntity.status(HttpStatus.OK).body("주문을 취소하였습니다.");
-    }
-
-    @Transactional
-    @PostMapping("/{orderSheetId}/confirms") //구매 상품 전부 구매 확정
-    public ResponseEntity<Object> allPurchaseConfirm(@PathVariable long orderSheetId) {
-        orderProductService.allPurchaseConfirm(orderSheetId);
-        OrderSheet orderSheet = orderSheetService.findOne(orderSheetId);
-        List<OrderProduct> orderProducts = orderProductService.findAllByOrderSheet(orderSheet);
-        for (OrderProduct orderProduct : orderProducts) {
-            pointService.addPurchaseConfirmPoint(orderProduct.getId());
-        }
-        return ResponseEntity.status(HttpStatus.OK).body("구매확정 되었습니다.");
-    }
-
-    @Transactional
-    @PostMapping("/{orderProductId}/confirm") //구매 확정
-    public ResponseEntity<Object> onePurchaseConfirm(@PathVariable long orderProductId) {
-        orderProductService.onePurchaseConfirm(orderProductId);
-        pointService.addPurchaseConfirmPoint(orderProductId);
-        return ResponseEntity.status(HttpStatus.OK).body("구매확정 되었습니다.");
-    }
-
-    @GetMapping("/member/{memberId}")
-    public List<OrderProductDto> list(@PathVariable long memberId) {
-        List<OrderProduct> orderProducts = orderProductService.findAllByMemberId(memberId);
-        List<OrderProductDto> orderProductDtos = changeDto(orderProducts);
-        return orderProductDtos;
-    }
-
 }

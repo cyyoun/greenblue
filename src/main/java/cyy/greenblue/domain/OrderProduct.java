@@ -45,12 +45,13 @@ public class OrderProduct {
         this.reviewStatus = ReviewStatus.UNWRITTEN;
     }
 
+    public void updateMember(Member member) {
+        this.member = member;
+    }
+
     public void updatePurchaseStatus(PurchaseStatus purchaseStatus) {
         this.purchaseStatus = purchaseStatus;
-    }
-    public void updatePurchaseConfirm(PurchaseStatus purchaseStatus, LocalDateTime purchaseDate) {
-        this.purchaseStatus = purchaseStatus;
-        this.purchaseDate = purchaseDate;
+        this.purchaseDate = LocalDateTime.now();
     }
 
     public void updateOrderSheet(OrderSheet orderSheet) {
