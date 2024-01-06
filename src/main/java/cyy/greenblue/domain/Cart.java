@@ -3,9 +3,11 @@ package cyy.greenblue.domain;
 import lombok.Getter;
 
 import jakarta.persistence.*;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@NoArgsConstructor
 public class Cart {
 
     @Id
@@ -14,7 +16,7 @@ public class Cart {
     private Long id;
     private int quantity;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
@@ -22,15 +24,8 @@ public class Cart {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    public Cart() {}
-
     public void updateQuantity(int quantity) {
         this.quantity = quantity;
-    }
-
-    public void updateCart(int quantity, Product product) {
-        this.quantity = quantity;
-        this.product = product;
     }
 
 }

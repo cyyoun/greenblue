@@ -2,8 +2,15 @@ package cyy.greenblue.service;
 
 import cyy.greenblue.domain.Cart;
 import cyy.greenblue.domain.Member;
+import cyy.greenblue.domain.OrderProduct;
+import cyy.greenblue.domain.Product;
+import cyy.greenblue.dto.BasicProductDto;
+import cyy.greenblue.dto.CartDto;
+import cyy.greenblue.dto.ProductMainImgDto;
 import cyy.greenblue.repository.CartRepository;
+import cyy.greenblue.security.auth.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,53 +22,81 @@ import java.util.List;
 public class CartService {
 
     private final CartRepository cartRepository;
+    private final ProductService productService;
+    private final ProductMainImgService productMainImgService;
 
-    public Cart add(Cart cart) {
+    public Member findMemberByAuthentication(Authentication authentication) {
+        PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
+        return principal.getMember();
+    }
+
+    public CartDto add(Cart cart, Authentication authentication) {
+        Member member = findMemberByAuthentication(authentication);
         //이미 상품이 장바구니에 있으면 수량만 변경
-        Cart oriCart = findByMemberAndProduct(cart);
-        if (oriCart != null) {
-            int sum = oriCart.getQuantity() + cart.getQuantity();
-            oriCart.updateQuantity(sum);
-            return edit(oriCart);
+        Cart oriCart = findByMemberAndProduct(member, cart);
+        if (oriCart == null) {
+            cartRepository.save(cart);
+            Cart findCart = findOne(cart.getId());
+            return createCartDto(findCart);
         }
-        return cartRepository.save(cart);
+        oriCart.updateQuantity(oriCart.getQuantity() + cart.getQuantity());
+        edit(oriCart, authentication);
+        return createCartDto(oriCart);
     }
 
-    public void deleteAll(List<Cart> carts) {
-        cartRepository.deleteAll(carts);
+    public CartDto createCartDto(Cart cart) {
+        Product product = productService.findOne(cart.getProduct().getId());
+        ProductMainImgDto mainImgDto = productMainImgService.findDtoByProduct(product);
+        BasicProductDto basicProductDto = new BasicProductDto().toDto(product, mainImgDto);
+        return new CartDto().toDto(cart, basicProductDto);
     }
 
-    public void deleteOne(Cart cart) {
-        cartRepository.delete(cart);
+    public void deleteAll(List<Long> cartIdList, Authentication authentication) {
+        Member member = findMemberByAuthentication(authentication);
+        for (Long id : cartIdList) {
+            if (findOne(id).getMember().equals(member)) {
+                cartRepository.deleteById(id);
+            }
+        }
     }
 
-    public Cart edit(Cart cart) { //변경할 cart 값
-        Cart oriCart = findOne(cart.getId());
-        oriCart.updateCart(cart.getQuantity(), cart.getProduct());
-        return oriCart;
+    public CartDto edit(Cart cart, Authentication authentication) { //변경할 cart 값
+        Member member = findMemberByAuthentication(authentication);
+        Cart oriCart = findOne(cart.getId()); //원래 cart 객체
+        if (!oriCart.getMember().equals(member)) {
+            throw new RuntimeException("인증 이슈");
+        }
+        oriCart.updateQuantity(cart.getQuantity());
+        return createCartDto(oriCart);
     }
 
-    public Cart findByMemberAndProduct(Cart cart) {
-        return cartRepository.findByMemberAndProduct(cart.getMember(), cart.getProduct());
+    public Cart findByMemberAndProduct(Member member, Cart cart) {
+        return cartRepository.findByMemberAndProduct(member, cart.getProduct());
     }
 
     public List<Cart> findByMember(Member member) {
         return cartRepository.findByMember(member);
     }
 
-    public void editQuantity(Cart cart, int quantity) {
-        Cart oriCart = findOne(cart.getId());
-        int newQuantity = oriCart.getQuantity() + quantity;
-
-        if (newQuantity == 0) {
-            deleteOne(oriCart);
-        } else {
-            oriCart.updateQuantity(newQuantity);
-        }
-    }
-
     public Cart findOne(long cartItemId) {
         return cartRepository.findById(cartItemId).orElse(null);
+    }
+
+    public void editQuantity(OrderProduct orderProduct) {
+        Cart cart = findByMember(orderProduct.getMember()).stream()
+                .filter(c -> c.getProduct() == orderProduct.getProduct())
+                .findAny().orElse(null);
+        if (cart == null) {
+            return;
+        }
+        Cart oriCart = findOne(cart.getId());
+        int quantity = oriCart.getQuantity() - orderProduct.getQuantity();
+
+        if (quantity == 0) {
+            cartRepository.delete(cart);
+        } else {
+            oriCart.updateQuantity(quantity);
+        }
     }
 
 }
