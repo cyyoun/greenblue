@@ -4,7 +4,9 @@ import cyy.greenblue.domain.*;
 import cyy.greenblue.domain.status.PurchaseStatus;
 import cyy.greenblue.domain.status.ReviewStatus;
 import cyy.greenblue.repository.PointRepository;
+import cyy.greenblue.security.auth.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +20,10 @@ public class PointService {
     private final PointRepository pointRepository;
     private final OrderProductService orderProductService;
 
-    public int currentPoint(long memberId) {
-        return pointRepository.findByMember(memberId);
+    public int currentPointByAuthentication(Authentication authentication) {
+        PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
+        Member member = principal.getMember();
+        return pointRepository.findPointByMemberId(member);
     }
 
     public void addPurchaseConfirmPoint(long orderProductId) {
@@ -32,13 +36,12 @@ public class PointService {
             pointRepository.save(point); //포인트 적립
             orderProductService.editPurchaseStatus(orderProduct, PurchaseStatus.ACCRUAL);
         } else {
-            throw new IllegalArgumentException("포인트 적립 불가 상태 (원인 불명????????????)");
+            throw new IllegalArgumentException("포인트 적립 불가 상태 (구매확정)");
         }
     }
 
     public void addReviewPoint(Review review) {
-        long orderProductId = review.getOrderProduct().getId();
-        OrderProduct orderProduct = orderProductService.findOne(orderProductId);
+        OrderProduct orderProduct = orderProductService.findOne(review.getOrderProduct().getId());
         Member member = orderProduct.getMember();
 
         if (orderProduct.getReviewStatus() == ReviewStatus.WRITTEN) {
@@ -53,7 +56,9 @@ public class PointService {
         return (int) (percent * calcPrice); //적립률 * 가격 * 수량
     }
 
-    public List<Point> findAllByMemberId(long memberId) {
+    public List<Point> findAllByAuthentication(Authentication authentication) {
+        PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
+        Long memberId = principal.getMember().getId();
         return pointRepository.findByMemberId(memberId);
     }
 }
