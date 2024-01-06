@@ -5,6 +5,7 @@ public enum ReviewStatus {
     UNWRITTEN,
     WRITTEN,
     ACCRUAL,
-    NON_ACCRUAL
+    NON_ACCRUAL,
+    DELETE
 
 }

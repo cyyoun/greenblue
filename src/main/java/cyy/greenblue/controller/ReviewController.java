@@ -1,92 +1,55 @@
 package cyy.greenblue.controller;
 
 import cyy.greenblue.domain.Review;
+import cyy.greenblue.domain.ReviewImg;
 import cyy.greenblue.dto.ReviewDto;
-import cyy.greenblue.service.PointService;
 import cyy.greenblue.service.ReviewService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/product/{productId}/review")
+@RequestMapping("/reviews")
 public class ReviewController {
     private final ReviewService reviewService;
 
-    private final ModelMapper modelMapper;
-    private final PointService pointService;
-
     @Transactional
     @PostMapping
-    public ResponseEntity<Object> save(@RequestPart Review review, @RequestPart List<MultipartFile> multipartFiles) {
-        Review saveReview = reviewService.add(review, multipartFiles);
-        pointService.addReviewPoint(saveReview);
-        return ResponseEntity.status(HttpStatus.OK).body(saveReview);
+    public ReviewDto save(@RequestPart Review review,
+                          @RequestPart List<MultipartFile> multipartFiles,
+                          Authentication authentication) {
+        return reviewService.add(review, multipartFiles, authentication);
     }
 
     @PostMapping("/{reviewId}")
-    public ResponseEntity<Object> edit(@RequestPart Review review, @PathVariable long reviewId,
-                                       @RequestPart List<MultipartFile> multipartFiles) {
-        Review editReview = reviewService.edit(review, reviewId, multipartFiles);
-        ReviewDto reviewDto = modelMapper.map(editReview, ReviewDto.class);
-        return ResponseEntity.status(HttpStatus.OK).body(reviewDto);
+    public ReviewDto edit(@RequestPart Review review,
+                          @PathVariable long reviewId,
+                          @RequestPart(required = false) List<ReviewImg> deleteImgList,
+                          @RequestPart(required = false) List<MultipartFile> multipartFiles,
+                          Authentication authentication) {
+        return reviewService.edit(review, reviewId, deleteImgList, multipartFiles, authentication);
     }
 
-    //리뷰 작성하면 삭제 불가하게 만들지 보류(협의 필요)
     @DeleteMapping("/{reviewId}")
-    public ResponseEntity<Object> delete(@PathVariable long reviewId) {
-        reviewService.delete(reviewId);
-        return ResponseEntity.status(HttpStatus.OK).body("리뷰가 삭제되었습니다.");
+    public String delete(@PathVariable long reviewId, Authentication authentication) {
+        reviewService.delete(reviewId, authentication);
+        return "ok";
     }
 
-    @GetMapping("/{reviewId}")
-    public ResponseEntity<Object> oneReview(@PathVariable long reviewId) {
-        Review review = reviewService.findOne(reviewId);
-        ReviewDto reviewDto = modelMapper.map(review, ReviewDto.class);
-        return ResponseEntity.status(HttpStatus.OK).body(reviewDto);
-    }
-
-    @GetMapping("/reviews")
-    public ResponseEntity<Object> allReview(
-            @PathVariable long productId,
+    @GetMapping
+    public List<ReviewDto> allReview(
+            @RequestParam(name = "product-id") Long productId,
             @RequestParam(name = "sort", defaultValue = "new") String sortBy,
             @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-
-        Pageable dynamicPageable = pageable;
-
-        if (sortBy.equals("low-score")) {
-            dynamicPageable = PageRequest.of(
-                    pageable.getPageNumber(),
-                    pageable.getPageSize(),
-                    Sort.by("score").ascending());
-        } else if (sortBy.equals("high-score")) {
-            dynamicPageable = PageRequest.of(
-                    pageable.getPageNumber(),
-                    pageable.getPageSize(),
-                    Sort.by("score").descending());
-        } else if (sortBy.equals("new")) {
-            dynamicPageable = PageRequest.of(
-                    pageable.getPageNumber(),
-                    pageable.getPageSize(),
-                    Sort.by("id").descending()
-            );
-        }
-
-        List<Review> reviews = reviewService.findAllByProductId(productId, dynamicPageable);
-        List<ReviewDto> reviewsDto = reviews.stream()
-                .map(review -> modelMapper.map(review, ReviewDto.class)).collect(Collectors.toList());
-        return ResponseEntity.status(HttpStatus.OK).body(reviewsDto);
+        Pageable dynamicPageable = reviewService.dynamicPageable(sortBy, pageable);
+        return reviewService.findAllByProductId(productId, dynamicPageable);
     }
 }

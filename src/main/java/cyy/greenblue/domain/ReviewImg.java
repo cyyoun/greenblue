@@ -3,9 +3,11 @@ package cyy.greenblue.domain;
 import lombok.Getter;
 
 import jakarta.persistence.*;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class ReviewImg {
 
     @Id
@@ -17,9 +19,6 @@ public class ReviewImg {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id")
     private Review review;
-
-    public ReviewImg() {
-    }
 
     public ReviewImg(String filename, Review review) {
         this.filename = filename;
