@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3303/greenblue
-    username: cyyoun
-    password: 1qaz2wsx
+    url: jdbc:mysql://localhost:3306/greenblue
+    username: greenblue
+    password: java1234
 
   messages:
     basename: messages, errors
@@ -55,5 +55,5 @@ logging:
 
 file:
   dir:
-    product: D:\_cyng\fileStore\greenblue\img\product\
-    review: D:\_cyng\fileStore\greenblue\img\review\
+    product: D:\cyyoun\fileStore\greenblue\img\product\
+    review: D:\cyyoun\fileStore\greenblue\img\review\
