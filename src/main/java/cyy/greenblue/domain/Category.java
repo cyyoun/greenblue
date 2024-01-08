@@ -5,12 +5,14 @@ import lombok.Builder;
 import lombok.Getter;
 
 import jakarta.persistence.*;
-import java.util.ArrayList;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 
 @Entity
 @Getter
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class Category {
 
@@ -26,18 +28,13 @@ public class Category {
     private Category parent;
 
     @OneToMany(mappedBy = "parent")
-    private List<Category> subCategories;
-
-    public Category() {
-        this.depth = 1;
-        this.subCategories = new ArrayList<>();
-    }
+    private List<Category> categoryList;
 
     public void updateDepth(int depth) {
         this.depth = depth;
     }
+
     public void updateName(String name) {
         this.name = name;
     }
-
 }

@@ -1,16 +1,11 @@
 package cyy.greenblue.controller;
 
-import cyy.greenblue.domain.Category;
 import cyy.greenblue.dto.CategoryDto;
 import cyy.greenblue.service.CategoryService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/categories")
