@@ -3,6 +3,7 @@ package cyy.greenblue.service;
 import cyy.greenblue.domain.Product;
 import cyy.greenblue.domain.ProductImg;
 import cyy.greenblue.dto.ProductImgDto;
+import cyy.greenblue.exception.NoMainImgException;
 import cyy.greenblue.repository.ProductImgRepository;
 import cyy.greenblue.util.FileUtil;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -26,19 +26,14 @@ public class ProductImgService {
 
     public List<ProductImgDto> save(Product product, List<MultipartFile> multipartFiles) {
         if (multipartFiles.size() == 1 && multipartFiles.get(0).isEmpty()) {
-            throw new RuntimeException("이미지가 없습니다.");
+            throw new NoMainImgException("상품 이미지가 없습니다.");
         }
 
-        try {
-            List<String> saveFilenames = fileUtil.saveFiles(multipartFiles, fileDir);
-            List<ProductImg> productImgList = saveFilenames.stream()
-                    .map(saveFile -> new ProductImg(saveFile, product)).toList();
-            productImgRepository.saveAll(productImgList); //DB 저장
-            return getProductImgDtoList(productImgList);
-
-        } catch (IOException e) {
-            throw new RuntimeException("이미지 저장 실패");
-        }
+        List<String> saveFilenames = fileUtil.saveFiles(multipartFiles, fileDir);
+        List<ProductImg> productImgList = saveFilenames.stream()
+                .map(saveFile -> new ProductImg(saveFile, product)).toList();
+        productImgRepository.saveAll(productImgList); //DB 저장
+        return getProductImgDtoList(productImgList);
     }
 
     public void delete(List<ProductImg> productImgs) {

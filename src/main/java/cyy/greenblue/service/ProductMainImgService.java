@@ -3,6 +3,7 @@ package cyy.greenblue.service;
 import cyy.greenblue.domain.Product;
 import cyy.greenblue.domain.ProductMainImg;
 import cyy.greenblue.dto.ProductMainImgDto;
+import cyy.greenblue.exception.NoMainImgException;
 import cyy.greenblue.repository.ProductMainImgRepository;
 import cyy.greenblue.util.FileUtil;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 
 @Service
 @Transactional
@@ -24,15 +24,11 @@ public class ProductMainImgService {
 
     public ProductMainImgDto save(Product product, MultipartFile multipartFile) {
         if (multipartFile.isEmpty()) {
-            throw new RuntimeException("메인 이미지가 없습니다.");
+            throw new NoMainImgException("상품 메인 이미지가 없습니다.");
         }
-        try {
-            String filename = fileUtil.saveFile(multipartFile, true, fileDir);
-            ProductMainImg productMainImg = productMainImgRepository.save(new ProductMainImg(filename, product));
-            return getProductMainImgDto(productMainImg);
-        } catch (IOException e) {
-            throw new RuntimeException("메인 이미지 저장 실패");
-        }
+        String filename = fileUtil.saveFile(multipartFile, true, fileDir);
+        ProductMainImg productMainImg = productMainImgRepository.save(new ProductMainImg(filename, product));
+        return getProductMainImgDto(productMainImg);
     }
 
     public void delete(Product product) {
@@ -47,13 +43,9 @@ public class ProductMainImgService {
         }
         ProductMainImg productMainImg = findOne(product);
         fileUtil.deleteFile(productMainImg.getFilename(), fileDir);
-        try {
-            String filename = fileUtil.saveFile(multipartFile, true, fileDir);
-            productMainImg.update(filename);
-            return getProductMainImgDto(productMainImg);
-        } catch (IOException e) {
-            throw new RuntimeException("메인 이미지 변경 저장 실패");
-        }
+        String filename = fileUtil.saveFile(multipartFile, true, fileDir);
+        productMainImg.update(filename);
+        return getProductMainImgDto(productMainImg);
     }
 
     public ProductMainImg findOne(Product product) {

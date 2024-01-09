@@ -1,5 +1,6 @@
 package cyy.greenblue.util;
 
+import cyy.greenblue.exception.ImgSaveFailException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,7 +23,7 @@ public class FileUtil {
         return UUID.randomUUID().toString() + extension;
     }
 
-    public String saveFile(MultipartFile multipartFile, boolean isMainImg, String fileDir) throws IOException { //파일 저장
+    public String saveFile(MultipartFile multipartFile, boolean isMainImg, String fileDir) { //파일 저장
         if (multipartFile.isEmpty()) {
             return null;
         }
@@ -32,18 +33,21 @@ public class FileUtil {
             changeFileName = "Main_" + changeFileName;
         }
         String fullPath = fileDir + changeFileName; //저장 파일 풀경로
-        multipartFile.transferTo(new File(fullPath)); //저장하고 업로드
+        try {
+            multipartFile.transferTo(new File(fullPath)); //저장하고 업로드
+        } catch (IOException e) {
+            throw new ImgSaveFailException(e);
+        }
         return changeFileName;
     }
 
-    public List<String> saveFiles(List<MultipartFile> multipartFiles, String fileDir) throws IOException {
+    public List<String> saveFiles(List<MultipartFile> multipartFiles, String fileDir) {
         List<String> savedFiles = new ArrayList<>();
 
         for (MultipartFile multipartFile : multipartFiles) {
             String savedFile = saveFile(multipartFile, false, fileDir);
             savedFiles.add(savedFile);
         }
-
         return savedFiles;
     }
 
@@ -59,5 +63,4 @@ public class FileUtil {
             deleteFile(filename, fileDir);
         }
     }
-
 }

@@ -31,6 +31,12 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    public static ProductBuilder productBuilder() {
+        return new ProductBuilder()
+                .code(UUID.randomUUID().toString())
+                .regDate(LocalDateTime.now());
+    }
+
     public Product() {
         this.code = UUID.randomUUID().toString();
         this.regDate = LocalDateTime.now();
