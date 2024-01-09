@@ -6,20 +6,18 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.validator.constraints.Range;
 
+import java.time.LocalDateTime;
 
-@Getter
-@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductOutputDto {
-    @NotNull
-    private Long id;
+@Getter
+@SuperBuilder
+public class ProductExtendDto extends ProductOutputDto {
     @NotBlank
-    private String name;
-    @Range(min = 1000, max = 9999999)
-    private int price;
+    private String description;
     @NotNull
-    private ProductMainImgDto mainImgDto;
+    private LocalDateTime regDate;
+    @NotNull
+    private CategoryDto categoryDto;
 }

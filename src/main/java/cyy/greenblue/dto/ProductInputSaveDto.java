@@ -3,23 +3,24 @@ package cyy.greenblue.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 import org.hibernate.validator.constraints.Range;
 
-
 @Getter
-@SuperBuilder
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductOutputDto {
-    @NotNull
-    private Long id;
+public class ProductInputSaveDto {
     @NotBlank
     private String name;
     @Range(min = 1000, max = 9999999)
     private int price;
+    @Range(min = 10, max = 9999)
+    private int quantity;
+    @NotBlank
+    private String description;
     @NotNull
-    private ProductMainImgDto mainImgDto;
+    private Integer categoryId;
 }

@@ -3,6 +3,7 @@ package cyy.greenblue.exception.exHandler;
 import cyy.greenblue.exception.CategoryException;
 import cyy.greenblue.exception.ImgSaveFailException;
 import cyy.greenblue.exception.NoMainImgException;
+import cyy.greenblue.exception.SoldOutException;
 import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,7 +24,8 @@ public class ExceptionAdvice {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(CategoryException.class)
-    public ExceptionInfo categoryExHandler(CategoryException e) {
+    public ExceptionInfo categoryExHandler(CategoryException e)
+    {
         return ExceptionInfo.builder()
                 .code("400")
                 .message(e.getMessage())
@@ -42,6 +44,16 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(NoMainImgException.class)
     public ExceptionInfo noMainImgExHandler(NoMainImgException e) {
+        e.getStackTrace();
+        return ExceptionInfo.builder()
+                .code("400")
+                .message(e.getMessage())
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(SoldOutException.class)
+    public ExceptionInfo soldOutExHandler(SoldOutException e) {
         e.getStackTrace();
         return ExceptionInfo.builder()
                 .code("400")

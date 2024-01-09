@@ -1,6 +1,6 @@
 package cyy.greenblue.controller;
 
-import cyy.greenblue.dto.ProductOutputDto;
+import cyy.greenblue.dto.ProductExtendDto;
 import cyy.greenblue.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -19,12 +19,12 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("/{productId}")
-    public ProductOutputDto detailsView(@PathVariable long productId) {
+    public ProductExtendDto detailsView(@PathVariable long productId) {
         return productService.findProductDtoById(productId);
     }
 
     @GetMapping("/{categoryId}/list")
-    public List<ProductOutputDto> listByCategory(
+    public List<ProductExtendDto> listByCategory(
             @PathVariable int categoryId,
             @RequestParam(name = "sort", defaultValue = "new") String sortBy,
             @RequestParam(name = "start-price", defaultValue = "0") int startPrice,
@@ -36,7 +36,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<ProductOutputDto> search(@RequestParam String word) {
+    public List<ProductExtendDto> search(@RequestParam String word) {
         return productService.findByWord(word);
     }
 }
