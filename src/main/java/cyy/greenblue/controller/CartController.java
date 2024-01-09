@@ -1,11 +1,13 @@
 package cyy.greenblue.controller;
 
-import cyy.greenblue.domain.Cart;
-import cyy.greenblue.dto.CartDto;
-import cyy.greenblue.dto.ProductDto;
+import cyy.greenblue.dto.CartInputDto;
+import cyy.greenblue.dto.CartOutputDto;
 import cyy.greenblue.service.CartService;
+import cyy.greenblue.util.ValidationUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +20,11 @@ public class CartController {
     private final CartService cartService;
 
     @PostMapping
-    public CartDto save(@RequestBody Cart cart, Authentication authentication) {
-        return cartService.add(cart, authentication);
+    public CartOutputDto save(@Valid @RequestBody CartInputDto cartInputDto,
+                              BindingResult bindingResult,
+                              Authentication authentication) {
+        ValidationUtil.chkBindingResult(bindingResult);
+        return cartService.add(cartInputDto, authentication);
     }
 
     @PostMapping("/delete")
@@ -29,8 +34,8 @@ public class CartController {
     }
 
     @PostMapping("/edit")
-    public CartDto edit(@RequestBody Cart cart, Authentication authentication) {
-        return cartService.edit(cart, authentication);
+    public CartOutputDto edit(@RequestBody CartInputDto cartInputDto, Authentication authentication) {
+        return cartService.edit(cartInputDto, authentication);
     }
 
     @GetMapping

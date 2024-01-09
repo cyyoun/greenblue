@@ -4,9 +4,11 @@ import cyy.greenblue.domain.Cart;
 import cyy.greenblue.domain.Member;
 import cyy.greenblue.domain.OrderProduct;
 import cyy.greenblue.domain.Product;
-import cyy.greenblue.dto.BasicProductDto;
-import cyy.greenblue.dto.CartDto;
+import cyy.greenblue.dto.CartInputDto;
+import cyy.greenblue.dto.ProductOutputDto;
+import cyy.greenblue.dto.CartOutputDto;
 import cyy.greenblue.dto.ProductMainImgDto;
+import cyy.greenblue.exception.SoldOutException;
 import cyy.greenblue.repository.CartRepository;
 import cyy.greenblue.security.auth.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
@@ -30,25 +32,20 @@ public class CartService {
         return principal.getMember();
     }
 
-    public CartDto add(Cart cart, Authentication authentication) {
+    public CartOutputDto add(CartInputDto cartInputDto, Authentication authentication) {
         Member member = findMemberByAuthentication(authentication);
-        //이미 상품이 장바구니에 있으면 수량만 변경
-        Cart oriCart = findByMemberAndProduct(member, cart);
-        if (oriCart == null) {
-            cartRepository.save(cart);
-            Cart findCart = findOne(cart.getId());
-            return createCartDto(findCart);
+        Product product = productService.findOne(cartInputDto.getProductId());
+        if (product.getQuantity() <= 0) {
+            throw new SoldOutException("품절된 상품");
         }
-        oriCart.updateQuantity(oriCart.getQuantity() + cart.getQuantity());
-        edit(oriCart, authentication);
-        return createCartDto(oriCart);
-    }
-
-    public CartDto createCartDto(Cart cart) {
-        Product product = productService.findOne(cart.getProduct().getId());
-        ProductMainImgDto mainImgDto = productMainImgService.findDtoByProduct(product);
-        BasicProductDto basicProductDto = new BasicProductDto().toDto(product, mainImgDto);
-        return new CartDto().toDto(cart, basicProductDto);
+        Cart oriCart = cartRepository.findByMemberAndProduct(member, product);
+        if (oriCart != null) {
+            oriCart.updateQuantity(oriCart.getQuantity() + cartInputDto.getQuantity());
+            oriCart.updateMember(member);
+            return convertDto(oriCart);
+        }
+        Cart cart = toEntity(cartInputDto, member, product);
+        return convertDto(cartRepository.save(cart));
     }
 
     public void deleteAll(List<Long> cartIdList, Authentication authentication) {
@@ -60,22 +57,20 @@ public class CartService {
         }
     }
 
-    public CartDto edit(Cart cart, Authentication authentication) { //변경할 cart 값
+    public CartOutputDto edit(CartInputDto cartInputDto, Authentication authentication) { //변경할 cart 값
         Member member = findMemberByAuthentication(authentication);
-        Cart oriCart = findOne(cart.getId()); //원래 cart 객체
-        if (!oriCart.getMember().equals(member)) {
-            throw new RuntimeException("인증 이슈");
+        Product product = productService.findOne(cartInputDto.getProductId());
+        Cart oriCart = findByMemberAndProduct(member, product);
+        oriCart.updateQuantity(cartInputDto.getQuantity());
+        return convertDto(oriCart);
+    }
+
+    public Cart findByMemberAndProduct(Member member, Product product) {
+        Cart cart = cartRepository.findByMemberAndProduct(member, product);
+        if (cart == null) {
+            throw new RuntimeException("변경 상품 존재하지 않음");
         }
-        oriCart.updateQuantity(cart.getQuantity());
-        return createCartDto(oriCart);
-    }
-
-    public Cart findByMemberAndProduct(Member member, Cart cart) {
-        return cartRepository.findByMemberAndProduct(member, cart.getProduct());
-    }
-
-    public List<Cart> findByMember(Member member) {
-        return cartRepository.findByMember(member);
+        return cart;
     }
 
     public Cart findOne(long cartItemId) {
@@ -83,20 +78,36 @@ public class CartService {
     }
 
     public void editQuantity(OrderProduct orderProduct) {
-        Cart cart = findByMember(orderProduct.getMember()).stream()
-                .filter(c -> c.getProduct() == orderProduct.getProduct())
-                .findAny().orElse(null);
-        if (cart == null) {
-            return;
-        }
-        Cart oriCart = findOne(cart.getId());
+        Cart oriCart = findByMemberAndProduct(orderProduct.getMember(), orderProduct.getProduct());
         int quantity = oriCart.getQuantity() - orderProduct.getQuantity();
 
         if (quantity == 0) {
-            cartRepository.delete(cart);
+            cartRepository.delete(oriCart);
         } else {
             oriCart.updateQuantity(quantity);
         }
     }
 
+    public CartOutputDto convertDto(Cart cart) {
+        Product product = productService.findOne(cart.getProduct().getId());
+        ProductMainImgDto mainImgDto = productMainImgService.findDtoByProduct(product);
+        ProductOutputDto productOutputDto = productService.convertProductOutputDto(product, mainImgDto);
+        return toDto(cart, productOutputDto);
+    }
+
+    public CartOutputDto toDto(Cart cart, ProductOutputDto productOutputDto) {
+        return CartOutputDto.builder()
+                .id(cart.getId())
+                .quantity(cart.getQuantity())
+                .productOutputDto(productOutputDto)
+                .build();
+    }
+
+    public Cart toEntity(CartInputDto cartInputDto, Member member, Product product) {
+        return Cart.builder()
+                .quantity(cartInputDto.getQuantity())
+                .member(member)
+                .product(product)
+                .build();
+    }
 }

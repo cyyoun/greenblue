@@ -1,5 +1,7 @@
 package cyy.greenblue.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import jakarta.persistence.*;
@@ -7,7 +9,9 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class Cart {
 
     @Id
@@ -28,4 +32,7 @@ public class Cart {
         this.quantity = quantity;
     }
 
+    public void updateMember(Member member) {
+        this.member = member;
+    }
 }
