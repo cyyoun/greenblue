@@ -11,6 +11,6 @@ public interface PointRepository extends JpaRepository<Point, Long> {
     @Query("SELECT SUM(p.points) FROM Point p WHERE p.member = :member")
     int findPointByMemberId(Member member);
 
-    List<Point> findByMemberId(long memberId);
+    List<Point> findByMember(Member member);
 
 }

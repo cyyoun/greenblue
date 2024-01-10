@@ -3,6 +3,8 @@ package cyy.greenblue.service;
 import cyy.greenblue.domain.*;
 import cyy.greenblue.domain.status.PurchaseStatus;
 import cyy.greenblue.domain.status.ReviewStatus;
+import cyy.greenblue.dto.PointDto;
+import cyy.greenblue.exception.PointAccrualException;
 import cyy.greenblue.repository.PointRepository;
 import cyy.greenblue.security.auth.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +22,13 @@ public class PointService {
     private final PointRepository pointRepository;
     private final OrderProductService orderProductService;
 
-    public int currentPointByAuthentication(Authentication authentication) {
+    private Member findMemberByAuthentication(Authentication authentication) {
         PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
-        Member member = principal.getMember();
+        return principal.getMember();
+    }
+
+    public int currentPointByAuthentication(Authentication authentication) {
+        Member member = findMemberByAuthentication(authentication);
         return pointRepository.findPointByMemberId(member);
     }
 
@@ -33,11 +39,10 @@ public class PointService {
             int points = orderPointCalc(orderProduct);
 
             if (orderProduct.getPurchaseStatus() == PurchaseStatus.PURCHASE_CONFIRM) {
-                Point point = new Point(points, orderProduct, member);
-                pointRepository.save(point); //포인트 적립
+                pointRepository.save(toEntity(points, orderProduct, member)); //포인트 적립
                 orderProductService.editPurchaseStatus(orderProduct, PurchaseStatus.ACCRUAL);
             } else {
-                throw new IllegalArgumentException("포인트 적립이 불가합니다.");
+                throw new PointAccrualException("포인트 적립이 불가합니다.");
             }
         }
     }
@@ -45,10 +50,10 @@ public class PointService {
     public void addReviewPoint(Review review) {
         OrderProduct orderProduct = orderProductService.findOne(review.getOrderProduct().getId());
         Member member = orderProduct.getMember();
-
         if (orderProduct.getReviewStatus() == ReviewStatus.WRITTEN) {
-            Point point = new Point(review, member);
-            pointRepository.save(point);
+            pointRepository.save(toEntity(review, member));
+        } else {
+            throw new PointAccrualException("포인트 적립이 불가합니다.");
         }
     }
 
@@ -58,9 +63,33 @@ public class PointService {
         return (int) (percent * calcPrice); //적립률 * 가격 * 수량
     }
 
-    public List<Point> findAllByAuthentication(Authentication authentication) {
-        PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
-        Long memberId = principal.getMember().getId();
-        return pointRepository.findByMemberId(memberId);
+    public List<PointDto> findAllByAuthentication(Authentication authentication) {
+        Member member = findMemberByAuthentication(authentication);
+        return pointRepository.findByMember(member).stream().map(this::convertDto).toList();
+    }
+
+    public PointDto convertDto(Point point) {
+        return PointDto.builder()
+                .id(point.getId())
+                .points(point.getPoints())
+                .reviewId(point.getReview().getId())
+                .orderProductId(point.getOrderProduct().getId())
+                .build();
+    }
+
+    public Point toEntity(int points, OrderProduct orderProduct, Member member) {
+        return Point.builder()
+                .points(points)
+                .orderProduct(orderProduct)
+                .member(member)
+                .build();
+    }
+
+    public Point toEntity(Review review, Member member) {
+        return Point.builder()
+                .points(500)
+                .review(review)
+                .member(member)
+                .build();
     }
 }

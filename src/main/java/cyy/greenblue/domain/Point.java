@@ -1,11 +1,17 @@
 package cyy.greenblue.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import jakarta.persistence.*;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Point {
 
     @Id
@@ -27,24 +33,4 @@ public class Point {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    public void updatePoints(int points) {
-        this.points = points;
-    }
-
-    public Point() {
-    }
-
-    //리뷰 건에 대한 적립
-    public Point(Review review, Member member) {
-        this.points = 500;
-        this.review = review;
-        this.member = member;
-    }
-
-    //주문 건에 대한 적립
-    public Point(int points, OrderProduct orderProduct, Member member) {
-        this.points = points;
-        this.orderProduct = orderProduct;
-        this.member = member;
-    }
 }
