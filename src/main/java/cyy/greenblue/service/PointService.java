@@ -21,6 +21,7 @@ import java.util.List;
 public class PointService {
     private final PointRepository pointRepository;
     private final OrderProductService orderProductService;
+    private final ReviewService reviewService;
 
     private Member findMemberByAuthentication(Authentication authentication) {
         PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
@@ -47,9 +48,10 @@ public class PointService {
         }
     }
 
-    public void addReviewPoint(Review review) {
+    public void addReviewPoint(Long reviewId, Authentication authentication) {
+        Member member = findMemberByAuthentication(authentication);
+        Review review = reviewService.findByIdAndAuthentication(reviewId, authentication);
         OrderProduct orderProduct = orderProductService.findOne(review.getOrderProduct().getId());
-        Member member = orderProduct.getMember();
         if (orderProduct.getReviewStatus() == ReviewStatus.WRITTEN) {
             pointRepository.save(toEntity(review, member));
         } else {

@@ -1,5 +1,7 @@
 package cyy.greenblue.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import jakarta.persistence.*;
@@ -7,7 +9,9 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class ReviewImg {
 
     @Id
@@ -19,15 +23,5 @@ public class ReviewImg {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id")
     private Review review;
-
-    public ReviewImg(String filename, Review review) {
-        this.filename = filename;
-        this.review = review;
-    }
-
-    public ReviewImg update(String filename) {
-        this.filename = filename;
-        return this;
-    }
 
 }

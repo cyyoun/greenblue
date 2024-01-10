@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,26 +25,23 @@ public class ReviewImgService {
     private final FileUtil fileUtil;
 
     public List<ReviewImgDto> convertDtoList(List<ReviewImg> reviewImgList) {
-        return reviewImgList.stream().map(reviewImg -> new ReviewImgDto().toDto(reviewImg)).toList();
+        return reviewImgList.stream().map(this::convertDto).toList();
     }
 
     public List<ReviewImgDto> save(Review review, List<MultipartFile> multipartFiles) {
         if (multipartFiles.size() == 1 && multipartFiles.get(0).isEmpty()) {
-            throw new RuntimeException("리뷰 첨부파일이 없습니다.");
+            return new ArrayList<>();
         }
-        try {
-            List<String> filenames = fileUtil.saveFiles(multipartFiles, fileDir);
-            List<ReviewImg> reviewImgList = filenames.stream().map(filename -> new ReviewImg(filename, review)).toList();
-            reviewImgRepository.saveAll(reviewImgList);
-            return convertDtoList(reviewImgList);
-        } catch (Exception e) {
-            throw new RuntimeException("파일을 저장하지 못했습니다.");
-        }
+        List<String> filenames = fileUtil.saveFiles(multipartFiles, fileDir);
+        List<ReviewImg> reviewImgList = filenames.stream().map(filename -> convertEntity(filename, review)).toList();
+        reviewImgRepository.saveAll(reviewImgList);
+        return convertDtoList(reviewImgList);
     }
 
     public List<ReviewImgDto> edit(Review review,
-                                List<ReviewImg> deleteImgList,
+                                List<Long> deleteImgList,
                                 List<MultipartFile> multipartFiles) {
+        System.out.println(deleteImgList != null);
         if (deleteImgList != null) {
             deleteAll(deleteImgList);
         }
@@ -57,11 +55,23 @@ public class ReviewImgService {
         return reviewImgRepository.findByReview(review);
     }
 
-    public void deleteAll(List<ReviewImg> reviewImgList) {
-        reviewImgRepository.deleteAll(reviewImgList);
-        for (ReviewImg reviewImg : reviewImgList) {
-            fileUtil.deleteFile(reviewImg.getFilename(), fileDir);
+    public void deleteAll(List<Long> deleteImgList) {
+        for (long id : deleteImgList) {
+            System.out.println(id);
+            fileUtil.deleteFile(findOne(id).getFilename(), fileDir);
+            reviewImgRepository.deleteById(id);
         }
-        reviewImgRepository.flush();
+    }
+
+    public ReviewImg findOne(long id) {
+        return reviewImgRepository.findById(id).orElseThrow();
+    }
+
+    public ReviewImgDto convertDto(ReviewImg reviewImg) {
+        return ReviewImgDto.builder().id(reviewImg.getId()).filename(reviewImg.getFilename()).build();
+    }
+
+    public ReviewImg convertEntity(String filename, Review review) {
+        return ReviewImg.builder().filename(filename).review(review).build();
     }
 }

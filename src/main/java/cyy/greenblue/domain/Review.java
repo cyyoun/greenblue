@@ -1,14 +1,22 @@
 package cyy.greenblue.domain;
 
+import cyy.greenblue.dto.ReviewInputDto;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import jakarta.persistence.*;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Review {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,17 +44,9 @@ public class Review {
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewImg> reviewImgList = new ArrayList<>();
 
-    public Review() {
-        this.regDate = LocalDateTime.now();
-    }
-
-    public void updateMember(Member member) {
-        this.member = member;
-    }
-
-    public void updateReview(Review review) {
-        this.score = review.getScore();
-        this.title = review.getTitle();
-        this.content = review.getContent();
+    public void updateReview(ReviewInputDto reviewInputDto) {
+        this.score = reviewInputDto.getScore();
+        this.title = reviewInputDto.getTitle();
+        this.content = reviewInputDto.getContent();
     }
 }

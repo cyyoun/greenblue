@@ -51,4 +51,11 @@ public class ExceptionAdvice {
         e.printStackTrace();
         return ExceptionInfo.builder().code("400").message(e.getMessage()).build();
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ReviewException.class)
+    public ExceptionInfo reviewExHandler(ReviewException e) {
+        e.printStackTrace();
+        return ExceptionInfo.builder().code("400").message(e.getMessage()).build();
+    }
 }

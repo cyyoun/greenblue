@@ -3,8 +3,11 @@ package cyy.greenblue.service;
 import cyy.greenblue.domain.*;
 import cyy.greenblue.domain.status.PurchaseStatus;
 import cyy.greenblue.domain.status.ReviewStatus;
-import cyy.greenblue.dto.ReviewDto;
+import cyy.greenblue.dto.ReviewInputDto;
+import cyy.greenblue.dto.ReviewOutputDto;
 import cyy.greenblue.dto.ReviewImgDto;
+import cyy.greenblue.exception.PurchaseConfirmException;
+import cyy.greenblue.exception.ReviewException;
 import cyy.greenblue.repository.ReviewRepository;
 import cyy.greenblue.security.auth.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.EnumSet;
 import java.util.List;
 
 
@@ -28,81 +32,68 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final OrderProductService orderProductService;
     private final ReviewImgService reviewImgService;
-    private final PointService pointService;
 
-    public ReviewDto convertDto(Review review, List<ReviewImgDto> reviewImgDtoList) {
-        return new ReviewDto().toDto(review, reviewImgDtoList);
-    }
 
-    public List<ReviewDto> convertDtoList(List<Review> reviews) {
-        return reviews.stream().map(review -> {
-            List<ReviewImg> reviewImgList = reviewImgService.findAllByReview(review);
-            ReviewDto reviewDto = new ReviewDto().toDto(review, reviewImgService.convertDtoList(reviewImgList));
-            return reviewDto;
-        }).toList();
-    }
 
     private Member findMemberByAuthentication(Authentication authentication) {
         PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
         return principal.getMember();
     }
 
-    public ReviewDto add(Review review, List<MultipartFile> multipartFiles, Authentication authentication) {
-            checkReviewCreate(review);
-            review.updateMember(findMemberByAuthentication(authentication));
-            Review savedReview = reviewRepository.save(review);
-            pointService.addReviewPoint(savedReview);
-            List<ReviewImgDto> reviewImgDtoList = reviewImgService.save(savedReview, multipartFiles);
-            return convertDto(savedReview, reviewImgDtoList);
+    public ReviewOutputDto add(ReviewInputDto reviewInputDto, List<MultipartFile> multipartFiles, Authentication authentication) {
+        OrderProduct orderProduct = orderProductService.findOne(reviewInputDto.getOrderProductId());
+        chkPurchaseDate(orderProduct);
+        chkReviewAndPurchaseStatus(orderProduct);
+        orderProduct.updateReviewStatus(ReviewStatus.WRITTEN);
+
+        Review review = toEntity(reviewInputDto, orderProduct, findMemberByAuthentication(authentication));
+        Review savedReview = reviewRepository.save(review);
+        List<ReviewImgDto> reviewImgDtoList = reviewImgService.save(savedReview, multipartFiles);
+        return convertDto(savedReview, reviewImgDtoList);
     }
 
-    public void checkReviewCreate(Review review) {
-        OrderProduct orderProduct = orderProductService.findOne(review.getOrderProduct().getId());
-        checkPurchaseDate(orderProduct);
-
+    public void chkReviewAndPurchaseStatus(OrderProduct orderProduct) {
         if (orderProduct.getPurchaseStatus() != PurchaseStatus.PURCHASE_CONFIRM &&
                 orderProduct.getPurchaseStatus() != PurchaseStatus.ACCRUAL) {
-            throw new RuntimeException("구매확정을 해야합니다.");
+            throw new PurchaseConfirmException("구매확정을 해야합니다.");
         }
-        if (orderProduct.getReviewStatus() != ReviewStatus.UNWRITTEN) {
-            throw new RuntimeException("리뷰를 작성할 수 없습니다.");
+
+        if (EnumSet.of(ReviewStatus.WRITTEN, ReviewStatus.ACCRUAL, ReviewStatus.DELETE)
+                .contains(orderProduct.getReviewStatus())) {
+            throw new ReviewException("이미 작성된 리뷰입니다.");
         }
-        orderProduct.updateReviewStatus(ReviewStatus.WRITTEN);
     }
 
-    public void checkPurchaseDate(OrderProduct orderProduct) {
+    public void chkPurchaseDate(OrderProduct orderProduct) {
         LocalDateTime before14days = LocalDateTime.now().minus(14, ChronoUnit.DAYS);
         LocalDateTime regDate = orderProduct.getOrderSheet().getRegDate();
         if (regDate.isBefore(before14days)) {
-            throw new RuntimeException("리뷰 작성 기간이 지났습니다.");
+            throw new ReviewException("리뷰 작성 기간이 지났습니다.");
         }
     }
 
-    public ReviewDto edit(Review review, long reviewId, List<ReviewImg> deleteImgList,
-                          List<MultipartFile> multipartFiles, Authentication authentication) {
-        Review oriReview = findOriReview(reviewId, authentication);
-        oriReview.updateReview(review);
+    public ReviewOutputDto edit(ReviewInputDto reviewInputDto, long reviewId, List<Long> deleteImgList,
+                                List<MultipartFile> multipartFiles, Authentication authentication) {
+        Review oriReview = findByIdAndAuthentication(reviewId, authentication);
+        oriReview.updateReview(reviewInputDto);
         List<ReviewImgDto> reviewImgDtoList = reviewImgService.edit(oriReview, deleteImgList, multipartFiles);
         return convertDto(oriReview, reviewImgDtoList);
     }
 
-    private Review findOriReview(long reviewId, Authentication authentication) {
+    public Review findByIdAndAuthentication(long reviewId, Authentication authentication) {
         List<Review> reviews = reviewRepository.findAllByMember(findMemberByAuthentication(authentication));
         return reviews.stream().filter(r -> r.getId() == reviewId).findAny().orElseThrow();
     }
 
     public void delete(long reviewId, Authentication authentication) {
-        Review oriReview = findOriReview(reviewId, authentication);
+        Review oriReview = findByIdAndAuthentication(reviewId, authentication);
         orderProductService.editReviewStatus(oriReview.getOrderProduct(), ReviewStatus.DELETE);
         reviewRepository.delete(oriReview);
     }
 
-    public List<ReviewDto> findAllByProductId(long productId, Pageable pageable) {
-        List<ReviewStatus> reviewStatuses = List.of(ReviewStatus.WRITTEN, ReviewStatus.ACCRUAL);
-        List<OrderProduct> orderProducts =
-                orderProductService.findAllByProductIdAndReviewStatus(productId, reviewStatuses);
-        List<Review> reviews = reviewRepository.findAllByOrderProductList(orderProducts, pageable).toList();
-        return convertDtoList(reviews);
+    public List<ReviewOutputDto> findAllByAuthentication(Authentication authentication) {
+        Member member = findMemberByAuthentication(authentication);
+        return convertDtoList(reviewRepository.findAllByMember(member));
     }
 
     public Pageable dynamicPageable(String sortBy, Pageable pageable) {
@@ -118,4 +109,44 @@ public class ReviewService {
         }
         return pageable;
     }
+
+    public List<ReviewOutputDto> findAllByProductId(long productId, Pageable pageable) {
+        List<ReviewStatus> reviewStatuses = List.of(ReviewStatus.WRITTEN, ReviewStatus.ACCRUAL);
+        List<OrderProduct> orderProducts =
+                orderProductService.findAllByProductIdAndReviewStatus(productId, reviewStatuses);
+        List<Review> reviews = reviewRepository.findAllByOrderProductList(orderProducts, pageable).toList();
+        return convertDtoList(reviews);
+    }
+
+    public List<ReviewOutputDto> convertDtoList(List<Review> reviews) {
+        return reviews.stream().map(review -> {
+            List<ReviewImg> reviewImgList = reviewImgService.findAllByReview(review);
+            return convertDto(review, reviewImgService.convertDtoList(reviewImgList));
+        }).toList();
+    }
+
+    public ReviewOutputDto convertDto(Review review, List<ReviewImgDto> reviewImgDtoList) {
+        return ReviewOutputDto.builder()
+                .id(review.getId())
+                .username(review.getMember().getUsername())
+                .score(review.getScore())
+                .title(review.getTitle())
+                .content(review.getContent())
+                .regDate(review.getRegDate())
+                .orderProductId(review.getOrderProduct().getId())
+                .reviewImgDtoList(reviewImgDtoList)
+                .build();
+    }
+
+    public Review toEntity(ReviewInputDto reviewInputDto, OrderProduct orderProduct, Member member) {
+        return Review.builder()
+                .score(reviewInputDto.getScore())
+                .title(reviewInputDto.getTitle())
+                .content(reviewInputDto.getContent())
+                .regDate(LocalDateTime.now())
+                .orderProduct(orderProduct)
+                .member(member)
+                .build();
+    }
+
 }
