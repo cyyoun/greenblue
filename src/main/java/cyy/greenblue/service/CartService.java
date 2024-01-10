@@ -60,17 +60,9 @@ public class CartService {
     public CartOutputDto edit(CartInputDto cartInputDto, Authentication authentication) { //변경할 cart 값
         Member member = findMemberByAuthentication(authentication);
         Product product = productService.findOne(cartInputDto.getProductId());
-        Cart oriCart = findByMemberAndProduct(member, product);
+        Cart oriCart = cartRepository.findByMemberAndProduct(member, product);
         oriCart.updateQuantity(cartInputDto.getQuantity());
         return convertDto(oriCart);
-    }
-
-    public Cart findByMemberAndProduct(Member member, Product product) {
-        Cart cart = cartRepository.findByMemberAndProduct(member, product);
-        if (cart == null) {
-            throw new RuntimeException("변경 상품 존재하지 않음");
-        }
-        return cart;
     }
 
     public Cart findOne(long cartItemId) {
@@ -78,7 +70,10 @@ public class CartService {
     }
 
     public void editQuantity(OrderProduct orderProduct) {
-        Cart oriCart = findByMemberAndProduct(orderProduct.getMember(), orderProduct.getProduct());
+        Cart oriCart = cartRepository.findByMemberAndProduct(orderProduct.getMember(), orderProduct.getProduct());
+        if (oriCart == null) {
+            return;
+        }
         int quantity = oriCart.getQuantity() - orderProduct.getQuantity();
 
         if (quantity == 0) {

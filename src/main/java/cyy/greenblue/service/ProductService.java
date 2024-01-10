@@ -26,22 +26,22 @@ public class ProductService {
     private final ProductImgService productImgService;
     private final ProductMainImgService mainImgService;
 
-    public ProductOutputDto add(ProductInputSaveDto productInputSaveDto, List<MultipartFile> multipartFiles, MultipartFile mainImg) {
+    public ProductExtendDto add(ProductInputSaveDto productInputSaveDto, List<MultipartFile> multipartFiles, MultipartFile mainImg) {
         Product product = toEntity(productInputSaveDto);
         Product saveProduct = productRepository.save(product);
         List<ProductImgDto> productImgDtoList = productImgService.save(saveProduct, multipartFiles);
         ProductMainImgDto mainImgDto = mainImgService.save(product, mainImg);
-        return convertOutputDto(saveProduct, mainImgDto, productImgDtoList);
+        return convertProductExtendDto(saveProduct, mainImgDto, productImgDtoList);
     }
 
-    public ProductOutputDto edit(long productId, ProductInputEditDto productInputEditDto, List<ProductImg> deleteImgList,
+    public ProductExtendDto edit(long productId, ProductInputEditDto productInputEditDto, List<ProductImg> deleteImgList,
                                  List<MultipartFile> multipartFiles, MultipartFile mainImg) {
         Product findProduct = findOne(productId);
         Product product = toEntity(productInputEditDto);
         findProduct.update(product);
         List<ProductImgDto> productImgDtoList = productImgService.edit(findProduct, deleteImgList, multipartFiles);
         ProductMainImgDto mainImgDto = mainImgService.edit(findProduct, mainImg);
-        return convertOutputDto(findProduct, mainImgDto, productImgDtoList);
+        return convertProductExtendDto(findProduct, mainImgDto, productImgDtoList);
     }
 
     public void editQuantity(Product product, int quantity) {
@@ -75,7 +75,7 @@ public class ProductService {
         return pageable;
     }
 
-    public List<ProductOutputDto> findAllByCategory(String soldOut, int startPrice,
+    public List<ProductExtendDto> findAllByCategory(String soldOut, int startPrice,
                                                     int endPrice, int categoryId, Pageable pageable) {
         Category category = categoryService.findOne(categoryId);
         Page<Product> products;
@@ -84,38 +84,52 @@ public class ProductService {
         } else {
             products = productRepository.soldOut_N(startPrice, endPrice, category, pageable);
         }
-        return products.map(product -> convertOutputDto(product, mainImgService.findDtoByProduct(product))).toList();
+        return products.map(product -> convertProductExtendDto(product, mainImgService.findDtoByProduct(product))).toList();
     }
 
-    public List<ProductOutputDto> findByWord(String word) {
+    public List<ProductExtendDto> findByWord(String word) {
         return productRepository.findAllByWord(word).stream()
-                .map(product -> convertOutputDto(product, mainImgService.findDtoByProduct(product))).toList();
+                .map(product -> convertProductExtendDto(product, mainImgService.findDtoByProduct(product))).toList();
     }
 
-    public ProductOutputDto findProductDtoById(long productId) {
+    public ProductExtendDto findProductDtoById(long productId) {
         Product product = findOne(productId);
         List<ProductImgDto> productImgDtoList = productImgService.findDtoListByProduct(product);
         ProductMainImgDto mainImgDto = mainImgService.findDtoByProduct(product);
-        return convertOutputDto(product, mainImgDto, productImgDtoList);
+        return convertProductExtendDto(product, mainImgDto, productImgDtoList);
     }
 
-    public ProductOutputDto convertOutputDto(Product product, ProductMainImgDto mainImgDto, List<ProductImgDto> productImgDtoList) {
-        return toOutputDtoBuilder(product, mainImgDto).productImgDtoList(productImgDtoList).build();
-    }
-
-    public ProductOutputDto convertOutputDto(Product product, ProductMainImgDto mainImgDto) {
-        return toOutputDtoBuilder(product, mainImgDto).build();
-    }
-
-    public ProductOutputDto.ProductOutputDtoBuilder toOutputDtoBuilder(Product product, ProductMainImgDto mainImgDto) {
-        return ProductOutputDto.builder()
+    public ProductDetailExtendDto convertProductExtendDto(Product product, ProductMainImgDto mainImgDto,
+                                                          List<ProductImgDto> productImgDtoList) {
+        return ProductDetailExtendDto.builder()
                 .id(product.getId())
                 .name(product.getName())
                 .price(product.getPrice())
                 .description(product.getDescription())
                 .regDate(product.getRegDate())
                 .categoryDto(categoryService.convertToDto(product.getCategory()))
-                .mainImgDto(mainImgDto);
+                .mainImgDto(mainImgDto)
+                .productImgDtoList(productImgDtoList)
+                .build();
+    }
+
+    public ProductExtendDto convertProductExtendDto(Product product, ProductMainImgDto mainImgDto) {
+        return ProductExtendDto.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .price(product.getPrice())
+                .description(product.getDescription())
+                .regDate(product.getRegDate())
+                .categoryDto(categoryService.convertToDto(product.getCategory()))
+                .mainImgDto(mainImgDto).build();
+    }
+
+    public ProductOutputDto convertProductOutputDto(Product product, ProductMainImgDto mainImgDto) {
+        return ProductOutputDto.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .price(product.getPrice())
+                .mainImgDto(mainImgDto).build();
     }
 
     public Product toEntity(ProductInputSaveDto productInputSaveDto) {
