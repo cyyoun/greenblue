@@ -2,13 +2,19 @@ package cyy.greenblue.domain;
 
 import cyy.greenblue.domain.status.PurchaseStatus;
 import cyy.greenblue.domain.status.ReviewStatus;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import jakarta.persistence.*;
+import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class OrderProduct {
 
     @Id
@@ -40,24 +46,10 @@ public class OrderProduct {
     @JoinColumn(name = "order_sheet_id")
     private OrderSheet orderSheet;
 
-    public OrderProduct() {
-        this.purchaseStatus = PurchaseStatus.PURCHASE_UNCONFIRM;
-        this.reviewStatus = ReviewStatus.UNWRITTEN;
-    }
-
-    public void updateMember(Member member) {
-        this.member = member;
-    }
-
     public void updatePurchaseStatus(PurchaseStatus purchaseStatus) {
         this.purchaseStatus = purchaseStatus;
         this.purchaseDate = LocalDateTime.now();
     }
-
-    public void updateOrderSheet(OrderSheet orderSheet) {
-        this.orderSheet = orderSheet;
-    }
-
     public void updateReviewStatus(ReviewStatus reviewStatus) {
         this.reviewStatus = reviewStatus;
     }

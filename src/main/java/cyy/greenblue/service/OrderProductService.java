@@ -5,6 +5,8 @@ import cyy.greenblue.domain.status.OrderStatus;
 import cyy.greenblue.domain.status.PurchaseStatus;
 import cyy.greenblue.domain.status.ReviewStatus;
 import cyy.greenblue.dto.OrderProductDto;
+import cyy.greenblue.dto.OrderProductInputDto;
+import cyy.greenblue.exception.PurchaseConfirmException;
 import cyy.greenblue.repository.OrderProductRepository;
 import cyy.greenblue.security.auth.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.List;
 
 @Transactional
@@ -33,48 +36,55 @@ public class OrderProductService {
         return orderProductRepository.findById(orderProductId).orElseThrow();
     }
 
-    public List<OrderProductDto> add(List<OrderProduct> orderProducts, Authentication authentication) {
-        Member member = findMemberByAuthentication(authentication);
-
+    public List<OrderProductDto> add(List<OrderProductInputDto> orderProductInputDtoList,
+                                     Authentication authentication) {
         OrderSheet orderSheet = orderSheetService.save(); //주문서 저장
-        for (OrderProduct orderProduct : orderProducts) {
-            orderProduct.updateOrderSheet(orderSheet);  //주문상품 저장(주문서 외래키 일괄주입)
-            orderProduct.updateMember(member);
+        Member member = findMemberByAuthentication(authentication);
+        List<OrderProduct> orderProducts = orderProductInputDtoList.stream().map(orderProductInputDto -> {
+            Product product = productService.findOne(orderProductInputDto.getProductId());
+            OrderProduct orderProduct = toEntity(orderProductInputDto, orderSheet, member, product);
             orderProductRepository.save(orderProduct);
 
             cartService.editQuantity(orderProduct);
             editQuantityByProduct(orderProduct, -1); //주문 들어옴 → 재고 감소
-        }
+            return orderProduct;
+        }).toList();
+
         return convertDtoList(orderProducts);
     }
 
     public void cancel(List<Long> orderProductIdList) {
         List<OrderProduct> orderProducts = orderProductIdList.stream().map(this::findOne).toList();
-
         for (OrderProduct orderProduct : orderProducts) {
             if (orderProduct.getPurchaseStatus() == PurchaseStatus.PURCHASE_UNCONFIRM &&
                     OrderSheetService.cancelConfirm(orderProduct.getOrderSheet())) {
                 editPurchaseStatus(orderProduct, PurchaseStatus.PURCHASE_CANCEL);
                 editQuantityByProduct(orderProduct, 1); //주문 취소됨 → 재고 증가
             } else {
-                throw new IllegalArgumentException("구매확정 상품이 존재합니다.");
+                throw new PurchaseConfirmException("구매확정 상품이 존재합니다.");
             }
         }
     }
 
-    public void purchaseConfirm(List<OrderProductDto> orderProductDtoList) {
-        for (OrderProductDto orderProductDto : orderProductDtoList) {
-            OrderSheet orderSheet = orderSheetService.findOne(orderProductDto.getOrderSheetId());
-            OrderStatus orderStatus = orderSheet.getOrderStatus();
-            PurchaseStatus purchaseStatus = orderProductDto.getPurchaseStatus();
+    public void purchaseConfirm(List<Long> orderProductIdList) {
+        List<OrderProduct> orderProducts = orderProductIdList.stream().map(this::findOne).toList();
 
-            if (purchaseStatus == PurchaseStatus.PURCHASE_UNCONFIRM && orderStatus == OrderStatus.ORDER_COMPLETE) {
-                OrderProduct orderProduct = findOne(orderProductDto.getId());
+        for (OrderProduct orderProduct : orderProducts) {
+            PurchaseStatus purchaseStatus = orderProduct.getPurchaseStatus();
+            if (purchaseStatus == PurchaseStatus.PURCHASE_UNCONFIRM &&
+                    orderProduct.getOrderSheet().getOrderStatus() == OrderStatus.ORDER_COMPLETE) {
                 editPurchaseStatus(orderProduct, PurchaseStatus.PURCHASE_CONFIRM);
-            } else if (purchaseStatus != PurchaseStatus.PURCHASE_UNCONFIRM)
-                throw new IllegalArgumentException("이미 구매확정된 상품입니다.");
-            else
-                throw new IllegalArgumentException("취소된 상품입니다.");
+
+            } else if (EnumSet.of(PurchaseStatus.PURCHASE_CONFIRM, PurchaseStatus.ACCRUAL,
+                    PurchaseStatus.NON_ACCRUAL).contains(purchaseStatus)) {
+                throw new PurchaseConfirmException("이미 구매확정된 상품입니다.");
+
+            } else if (purchaseStatus == PurchaseStatus.PURCHASE_CANCEL){
+                throw new PurchaseConfirmException("취소한 상품입니다.");
+
+            } else {
+                throw new PurchaseConfirmException("구매확정 실패");
+            }
         }
     }
 
@@ -111,5 +121,17 @@ public class OrderProductService {
 
     public List<OrderProduct> findAllByTimeAndReviewStatus(LocalDateTime before14Days, ReviewStatus reviewStatus) {
         return orderProductRepository.findByTimeAndReviewStatus(before14Days, reviewStatus);
+    }
+
+    public OrderProduct toEntity(OrderProductInputDto inputDto, OrderSheet orderSheet, Member member, Product product) {
+        return OrderProduct.builder()
+                .quantity(inputDto.getQuantity())
+                .orderSheet(orderSheet)
+                .member(member)
+                .product(product)
+                .reviewStatus(ReviewStatus.UNWRITTEN)
+                .purchaseStatus(PurchaseStatus.PURCHASE_UNCONFIRM)
+                .purchaseDate(LocalDateTime.now())
+                .build();
     }
 }

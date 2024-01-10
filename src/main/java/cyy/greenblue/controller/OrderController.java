@@ -1,7 +1,7 @@
 package cyy.greenblue.controller;
 
-import  cyy.greenblue.domain.OrderProduct;
 import cyy.greenblue.dto.OrderProductDto;
+import cyy.greenblue.dto.OrderProductInputDto;
 import cyy.greenblue.service.OrderProductService;
 import cyy.greenblue.service.PointService;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +19,9 @@ public class OrderController {
     private final PointService pointService;
 
     @PostMapping
-    public List<OrderProductDto> order(@RequestBody List<OrderProduct> orderProducts, Authentication authentication) {
-        return orderProductService.add(orderProducts, authentication);
+    public List<OrderProductDto> order(@RequestBody List<OrderProductInputDto> orderProductInputDtoList,
+                                       Authentication authentication) {
+        return orderProductService.add(orderProductInputDtoList, authentication);
     }
 
     @PostMapping("/cancels")
@@ -30,11 +31,9 @@ public class OrderController {
     }
 
     @PostMapping("/confirms")
-    public String purchaseConfirms(@RequestBody List<OrderProductDto> orderProductDtoList) {
-        orderProductService.purchaseConfirm(orderProductDtoList);
-        for (OrderProductDto orderProductDto : orderProductDtoList) {
-            pointService.addPurchaseConfirmPoint(orderProductDto.getId());
-        }
+    public String purchaseConfirms(@RequestBody List<Long> orderProductIdList) {
+        orderProductService.purchaseConfirm(orderProductIdList);
+        pointService.addPurchaseConfirmPoint(orderProductIdList);
         return "ok";
     }
 

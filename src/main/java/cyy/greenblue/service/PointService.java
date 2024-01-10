@@ -26,17 +26,19 @@ public class PointService {
         return pointRepository.findPointByMemberId(member);
     }
 
-    public void addPurchaseConfirmPoint(long orderProductId) {
-        OrderProduct orderProduct = orderProductService.findOne(orderProductId);
-        Member member = orderProduct.getMember();
-        int points = orderPointCalc(orderProduct);
+    public void addPurchaseConfirmPoint(List<Long> orderProductIdList) {
+        for (Long orderProductId : orderProductIdList) {
+            OrderProduct orderProduct = orderProductService.findOne(orderProductId);
+            Member member = orderProduct.getMember();
+            int points = orderPointCalc(orderProduct);
 
-        if (orderProduct.getPurchaseStatus() == PurchaseStatus.PURCHASE_CONFIRM) {
-            Point point = new Point(points, orderProduct, member);
-            pointRepository.save(point); //포인트 적립
-            orderProductService.editPurchaseStatus(orderProduct, PurchaseStatus.ACCRUAL);
-        } else {
-            throw new IllegalArgumentException("포인트 적립 불가 상태 (구매확정)");
+            if (orderProduct.getPurchaseStatus() == PurchaseStatus.PURCHASE_CONFIRM) {
+                Point point = new Point(points, orderProduct, member);
+                pointRepository.save(point); //포인트 적립
+                orderProductService.editPurchaseStatus(orderProduct, PurchaseStatus.ACCRUAL);
+            } else {
+                throw new IllegalArgumentException("포인트 적립이 불가합니다.");
+            }
         }
     }
 
