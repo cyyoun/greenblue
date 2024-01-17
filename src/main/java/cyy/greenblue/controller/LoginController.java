@@ -1,62 +1,37 @@
 package cyy.greenblue.controller;
 
-import cyy.greenblue.domain.Member;
 import cyy.greenblue.security.auth.PrincipalDetails;
-import cyy.greenblue.security.jwt.JwtUtil;
-import cyy.greenblue.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.util.Map;
 
 
 @Controller
 @RequiredArgsConstructor
 public class LoginController {
 
-    private final MemberService memberService;
-    private final BCryptPasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
 
-    @GetMapping(value = {"/login", "/"})
-    public String loginForm() {
-        return "login";
-    }
-
+    @ResponseBody
     @PostMapping("/auth/loginProc")
-    public String login() {
-        return "hello";
+    public ResponseEntity<?> login() {
+        return ResponseEntity.ok(Map.of("success", true));
     }
+
 
     @GetMapping("/auth/hello")
     public String helloForm() {
         return "hello";
     }
 
-    @GetMapping("/join")
-    public String joinForm() {
-        return "join";
-    }
-
-    @PostMapping("/join")
-    public String join(@ModelAttribute Member member) {
-        member.setRole("ROLE_USER");
-        member.setPassword(passwordEncoder.encode(member.getPassword()));
-        member.setRegDate(LocalDateTime.now());
-        memberService.save(member); //먼저 회원을 저장 (!! cart_id 가 없어서 오류 발생했기에 순서 중요)
-
-        return "redirect:/";
-    }
-
     @GetMapping("/user")
     @ResponseBody
-    public String user(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        System.out.println("======== principalDetails : " + principalDetails.getMember());
+    public String user(Authentication authentication) {
         return "유저 페이지입니다.";
     }
 

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../css/login.css">
+    <script type="module" src="../js/login.js"></script>
+    <title>Greenblue Login</title>
+  </head>
+  <body>
+    <div class="container">
+      <img class="logo-img" src="../img/logo.png">
+      <h1>Login</h1>
+      <div class="logout">
+        로그아웃되었습니다.
+      </div>
+      <div class="login">
+        <div><input type="text" name="username" id ="username" placeholder="아이디를 입력해주세요."/></div>
+        <div><input type="password" name="password" id="password" placeholder="비밀번호를 입력해주세요"/> </div>
+        <div><button class="button-login" id="login">로그인</button></div>
+      </div>
+      <!-- <a href="/oauth2/authorization/google">구글 로그인</a> -->
+      <!-- <a href="/oauth2/authorization/naver">네이버 로그인</a> -->
+  <!-- naver 로그인을 누르면 실제로 호출되는 주소는 authorization-uri 주소임 -->
+      <div><a href="join.html" class="join">계정이 없으신가요?</a></div>
+    </div>
+  </body>
+</html>

@@ -2,7 +2,6 @@ package cyy.greenblue.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cyy.greenblue.dto.MemberDto;
-import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import org.springframework.security.authentication.AuthenticationManager;

@@ -2,9 +2,12 @@ package cyy.greenblue.service;
 
 import cyy.greenblue.domain.*;
 import cyy.greenblue.domain.status.PurchaseStatus;
+import cyy.greenblue.dto.MemberDto;
+import cyy.greenblue.exception.MemberInfoDuplicateException;
 import cyy.greenblue.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,14 +16,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Transactional
-@Service
-@RequiredArgsConstructor
-public class MemberService {
-    private final MemberRepository memberRepository;
-    private final OrderProductService orderProductService;
+    @Transactional
+    @Service
+    @RequiredArgsConstructor
+    public class MemberService {
+        private final MemberRepository memberRepository;
+        private final OrderProductService orderProductService;
     private final OrderSheetService orderSheetService;
-    private final Map<Member, Integer> map = new HashMap<>();
+    private final PasswordEncoder passwordEncoder;
+    private static final Map<Member, Integer> map = new HashMap<>();
 
     @Scheduled(cron = "0 0 0 1 1,4,7,10 *") // 1월, 4월, 7월, 10월의 1일 00시 00분에 실행
     public void scheduleMemberGradeUpdate() {
@@ -84,11 +88,34 @@ public class MemberService {
         return memberRepository.findAll();
     }
 
-    public Member findByUsername(String username) {
-        return memberRepository.findByUsername(username);
+    public void save(MemberDto memberDto) {
+        System.out.println("memberDto = " + memberDto.getUsername());
+        if (isUsernameDuplicate(memberDto.getUsername())) {
+            throw new MemberInfoDuplicateException("아이디가 이미 사용중입니다.");
+        }
+        if (isEmailDuplicate(memberDto.getEmail())) {
+            throw new MemberInfoDuplicateException("이메일이 이미 사용중입니다.");
+        }
+        Member member = convertEntity(memberDto);
+        memberRepository.save(member);
     }
 
-    public void save(Member member) {
-        memberRepository.save(member);
+    public Member convertEntity(MemberDto memberDto) {
+        return Member.builder()
+                .username(memberDto.getUsername())
+                .password(passwordEncoder.encode(memberDto.getPassword()))
+                .email(memberDto.getEmail())
+                .regDate(LocalDateTime.now())
+                .grade(Grade.BRONZE)
+                .role("ROLE_USER")
+                .build();
+    }
+
+    public boolean isUsernameDuplicate(String username) {
+        return memberRepository.countByUsername(username) > 0;
+    }
+
+    public boolean isEmailDuplicate(String email) {
+        return memberRepository.countByEmail(email) > 0;
     }
 }

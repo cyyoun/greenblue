@@ -1,14 +1,20 @@
 package cyy.greenblue.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 import lombok.Data;
 
 import jakarta.persistence.*;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,22 +34,6 @@ public class Member {
     @Column(name = "provider_id")
     private String providerId; //ex) attribute sub 정보
     private String provider; //ex) google
-
-    @Builder
-    public static Member create(String username, String password, String email, String role, String provider, String providerId) {
-        return Member.builder()
-                .username(username)
-                .password(password)
-                .email(email)
-                .role(role)
-                .provider(provider)
-                .providerId(providerId)
-                .build();
-    }
-
-    public Member() {
-        this.grade = Grade.BRONZE;
-    }
 
     public void updateGrade(Grade grade) {
         this.grade = grade;

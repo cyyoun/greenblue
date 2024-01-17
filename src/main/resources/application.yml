@@ -4,10 +4,13 @@ spring:
     url: jdbc:mysql://localhost:3306/greenblue
     username: greenblue
     password: java1234
-
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
   messages:
     basename: messages, errors
-
   jpa:
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect

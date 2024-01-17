@@ -3,7 +3,6 @@ package cyy.greenblue.security.jwt;
 import cyy.greenblue.domain.JwtToken;
 import cyy.greenblue.domain.Member;
 import cyy.greenblue.service.JwtTokenService;
-import cyy.greenblue.service.MemberService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -21,11 +20,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtUtil {
     private final Key key;
-    private final MemberService memberService;
     private final JwtTokenService jwtTokenService;
 
-    public JwtUtil(String secret, MemberService memberService, JwtTokenService jwtTokenService) {
-        this.memberService = memberService;
+    public JwtUtil(String secret, JwtTokenService jwtTokenService) {
         this.jwtTokenService = jwtTokenService;
         byte[] bytes = Decoders.BASE64.decode(secret);
         this.key = Keys.hmacShaKeyFor(bytes);
@@ -34,21 +31,14 @@ public class JwtUtil {
     public String[] createTokenWhenLogin(Authentication authentication) {
         String accessToken = createAccessToken(authentication);
         String refreshToken = createRefreshToken(authentication);
-        Member member = findMemberByUsername(authentication.getName());
-        JwtToken jwtToken = new JwtToken(member, refreshToken);
-        try {
-            jwtTokenService.save(jwtToken);
-        } catch (Exception e) {
-            jwtTokenService.editToken(jwtToken);
-        }
-
+        jwtTokenService.save(authentication, refreshToken);
         return new String[]{accessToken, refreshToken};
     }
 
     public String createAccessToken(Authentication authentication) {
         // 토큰 만료 시간 설정 (현재 시간으로부터 30분 후로 설정)
         Instant now = Instant.now();
-        Instant expirationTime = now.plusSeconds(60 * 30); // 30분 후
+        Instant expirationTime = now.plusSeconds(60 * 60 * 24 * 14); // 60 * 30 : 30분 후
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(JwtProperties.AUTHORITIES_KEY, getAuthorities(authentication))
@@ -77,9 +67,8 @@ public class JwtUtil {
     }
 
     public String recreateAccessToken(Authentication authentication) {
-        Member member = findMemberByUsername(authentication.getName());
-        String refreshToken = jwtTokenService.findTokenByMember(member);
-        if (validateToken(refreshToken)) {
+        JwtToken token = jwtTokenService.findByAuthentication(authentication);
+        if (validateToken(token.getToken())) {
             return createAccessToken(authentication);
         }
         return null;
@@ -87,7 +76,11 @@ public class JwtUtil {
 
     public boolean validateToken(String token) {
         try {
-            findClaims(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody().getSubject();
             return true;
         } catch (SecurityException | MalformedJwtException e) {
             log.error("잘못된 jwt 서명입니다.", e);
@@ -101,15 +94,11 @@ public class JwtUtil {
         return false;
     }
 
-    public Claims findClaims(String token) {
+    public String findUsernameByToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
-                .getBody();
-    }
-
-    private Member findMemberByUsername(String username) {
-        return memberService.findByUsername(username);
+                .getBody().getSubject();
     }
 }

@@ -3,9 +3,12 @@ package cyy.greenblue.exception.exHandler;
 import cyy.greenblue.exception.*;
 import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.Map;
 
 @RestControllerAdvice
 public class ExceptionAdvice {
@@ -55,6 +58,13 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ReviewException.class)
     public ExceptionInfo reviewExHandler(ReviewException e) {
+        e.printStackTrace();
+        return ExceptionInfo.builder().code("400").message(e.getMessage()).build();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MemberInfoDuplicateException.class)
+    public ExceptionInfo MemberInfoDuplicateExHandler(MemberInfoDuplicateException e) {
         e.printStackTrace();
         return ExceptionInfo.builder().code("400").message(e.getMessage()).build();
     }

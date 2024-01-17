@@ -16,6 +16,7 @@ public class JwtToken {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+    @Column(length = 1000)
     private String token;
 
     public JwtToken(Member member, String token) {
