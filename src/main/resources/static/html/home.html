@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Greenblue Home</title>
+    <link rel="stylesheet" href="../css/home.css">
+    <script src="../js/home.js"></script>
+</head>
+<body> 
+    <div class="container">
+        <div class="basic-bar">
+            <img class="logo-img" src="../img/logo.png">
+            <div>        
+                <button class="basic-button" id="login-button" onclick="location.href='login.html'">로그인</button>
+                <button class="basic-button" id="logout-button" onclick="logout()">로그아웃</button>
+                <button class="basic-button" id="join-button">회원가입</button>
+                <button class="basic-button" id="cart-button">장바구니</button>
+                <button class="basic-button" id="mypage-button">마이페이지</button>
+            </div>
+        </div>
+    
+        <div class="search-bar">
+            <input type="text" id="keyword" placeholder="검색어를 입력하세요">
+            <button class="search-button" onclick="keywordSearch()">검색</button>
+        </div>  
+        
+        <div class="menu-bar" id="menu-bar-container"></div>
+
+        <ul class="submenu-bar" id="submenu-bar-container"></ul> 
+
+
+        <div id="filter-container">
+            <div class="category-tree" id="category-tree">  상의 > 맨투맨 </div>
+            <div class="condition">
+                <div>필터 :    
+                    <label for="new">최신순</label>
+                    <input type="radio" name="order"    id="new" checked>
+                    <label for="low-price">낮은 가격순</label>
+                    <input type="radio" name="order" id="low-price">
+                    <label for="high-price">높은 가격순</label>
+                    <input type="radio" name="order" id="high-price"> 
+                </div>
+                <div>   
+                    <label for="startPrice">금액 : </label>
+                    <input type="text" id="startPrice" class="price"> ~ 
+                    <input type="text" id="endPrice" class="price"> 
+                
+                    <label for="soldout-chk">품절제외</label>
+                    <input type="checkbox" id="soldout-chk">
+                </div> 
+                <div>
+                    <button type="submit" class="search-button" onclick="conditionSearch()">검색</button> 
+                    <input type="reset" class="search-button" value="초기화" onclick="resetCondition()">
+                </div>
+            </div>  
+        </div>
+        <table>
+            <tbody id="product-container"></tbody>
+        </table>
+
+        <div class="pagination" id="pagination-container"></div>
+    </div>    
+</div>
+</body>
+</html>

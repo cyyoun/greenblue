@@ -7,6 +7,7 @@ import cyy.greenblue.service.ReviewService;
 import cyy.greenblue.util.ValidationUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -55,10 +56,10 @@ public class ReviewController {
     }
 
     @GetMapping
-    public List<ReviewOutputDto> allReview(
+    public Page<ReviewOutputDto> allReview(
             @RequestParam(name = "product-id") Long productId,
             @RequestParam(name = "sort", defaultValue = "new") String sortBy,
-            @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 2, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         Pageable dynamicPageable = reviewService.dynamicPageable(sortBy, pageable);
         return reviewService.findAllByProductId(productId, dynamicPageable);
     }

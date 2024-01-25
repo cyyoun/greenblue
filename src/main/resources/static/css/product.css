@@ -13,8 +13,7 @@ body {
     height: 90vh;
 }
 
-button, 
-input[type="submit"]{
+button {
     cursor: pointer;
 }
 
@@ -71,13 +70,17 @@ input[type="text"],
     align-items: center;
     justify-content: space-between;
 }
-
+.basic-bar > div {
+    display: flex; /* 이 부분을 추가하여 내부의 버튼을 가로로 배열 */
+    align-items: center;
+}
 .basic-button {
     background-color: rgb(150, 177, 201, 0.2); /* 원하는 배경색으로 설정 */
     padding: 8px 15px; /* 버튼의 패딩 설정 */
     border: none; /* 테두리 없애기 */
     font-size: 14px; /* 버튼 텍스트 크기 */
     font-weight: bold;
+    margin-right: 10px;
     color: #6388a8;
 }
 .basic-button :active {
@@ -90,8 +93,8 @@ input[type="text"],
 
 .item-info {
     display: flex; 
-    margin-bottom: 10px; 
     color: #BE93C5;
+
 }
 
 .item-img {
@@ -122,19 +125,20 @@ input[type="text"],
 
 .button-cart, .button-order {
     cursor: pointer;
-    height: 10%;
-    padding: 13px 15px; /* Updated padding to 13px top/bottom and 20px left/right */
+    padding: 13px;
     border: none;
     font-size: 14px;
     font-weight: bold;
     background-color: rgba(226, 77, 139, 0.1);
     color: #b370bd;
-    margin-bottom: 110px;
+    margin-left: 10px;
+    margin-bottom: 100px;
 }
 
 .detail-img {
     width: 70px;
-    height: 70px; 
+    height: 70px;   
+    cursor: pointer;
 }
 
 .radio-btns {
@@ -159,14 +163,14 @@ input[type="text"],
     margin-bottom: 5px;
 }
 
-.date {
+.review-basic-text {
     font-style: italic;
     color: #888;
     margin-top: 10px;
 
   }
 
-.pagination {
+  .pagination {
     display: flex;
     list-style: none;
     justify-content: center; 
@@ -191,18 +195,40 @@ input[type="text"],
     background-color: #ddd;
 }
 
+.review-image img {
+    width: 60px;
+    height: 60px;
+    margin-right: 20px;
+    cursor: pointer;
+}
+
 .modal {
-    display: none; /* 초기에는 숨김 */
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9); /* 배경 투명도 조절 가능 */
-    justify-content: center;
-    align-items: center;
-  }
-  .modal img {
-    max-width: 90%; /* 모달 내 이미지 크기 조절 */
-    max-height: 90vh;
-  }
+    top: 50%;
+    left: 50%;
+    width: 100px;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    width: 500px; /* 모달의 가로 크기에 맞게 조절 */
+}
+
+.modal-img {
+    width: 500px;
+    max-height: 70%;
+    margin: 0 auto; /* 수평 가운데 정렬을 위해 margin 속성 사용 */
+    display: block; /* margin 속성을 사용하려면 블록 요소로 지정해야 함 */
+}
+
+.close-modal {
+    cursor: pointer;
+    font-size: 50px; 
+    font-weight: bold;
+    color: #222222;
+}
+.next-Button {
+    padding: 8px 15px; 
+    border: none; 
+    font-size: 25px; 
+    font-weight: bold;
+    color: #7BC6CC;
+}

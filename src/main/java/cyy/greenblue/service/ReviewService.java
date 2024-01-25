@@ -11,6 +11,7 @@ import cyy.greenblue.exception.ReviewException;
 import cyy.greenblue.repository.ReviewRepository;
 import cyy.greenblue.security.auth.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -93,7 +94,11 @@ public class ReviewService {
 
     public List<ReviewOutputDto> findAllByAuthentication(Authentication authentication) {
         Member member = findMemberByAuthentication(authentication);
-        return convertDtoList(reviewRepository.findAllByMember(member));
+
+        return reviewRepository.findAllByMember(member).stream().map(review -> {
+            List<ReviewImg> reviewImgList = reviewImgService.findAllByReview(review);
+            return convertDto(review, reviewImgService.convertDtoList(reviewImgList));
+        }).toList();
     }
 
     public Pageable dynamicPageable(String sortBy, Pageable pageable) {
@@ -110,12 +115,15 @@ public class ReviewService {
         return pageable;
     }
 
-    public List<ReviewOutputDto> findAllByProductId(long productId, Pageable pageable) {
+    public Page<ReviewOutputDto> findAllByProductId(long productId, Pageable pageable) {
         List<ReviewStatus> reviewStatuses = List.of(ReviewStatus.WRITTEN, ReviewStatus.ACCRUAL);
         List<OrderProduct> orderProducts =
                 orderProductService.findAllByProductIdAndReviewStatus(productId, reviewStatuses);
-        List<Review> reviews = reviewRepository.findAllByOrderProductList(orderProducts, pageable).toList();
-        return convertDtoList(reviews);
+        return reviewRepository.findAllByOrderProductList(orderProducts, pageable)
+                .map(review -> {
+                    List<ReviewImg> reviewImgList = reviewImgService.findAllByReview(review);
+                    return convertDto(review, reviewImgService.convertDtoList(reviewImgList));
+                });
     }
 
     public List<ReviewOutputDto> convertDtoList(List<Review> reviews) {

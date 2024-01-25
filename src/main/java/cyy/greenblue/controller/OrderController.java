@@ -4,8 +4,11 @@ import cyy.greenblue.dto.OrderProductDto;
 import cyy.greenblue.dto.OrderProductInputDto;
 import cyy.greenblue.service.OrderProductService;
 import cyy.greenblue.service.PointService;
+import cyy.greenblue.util.ValidationUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,8 +22,10 @@ public class OrderController {
     private final PointService pointService;
 
     @PostMapping
-    public List<OrderProductDto> order(@RequestBody List<OrderProductInputDto> orderProductInputDtoList,
+    public List<OrderProductDto> order(@Valid @RequestBody List<OrderProductInputDto> orderProductInputDtoList,
+                                       BindingResult bindingResult,
                                        Authentication authentication) {
+        ValidationUtil.chkBindingResult(bindingResult);
         return orderProductService.add(orderProductInputDtoList, authentication);
     }
 

@@ -9,7 +9,6 @@ import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -42,7 +41,7 @@ public class Review {
     private Point point;
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReviewImg> reviewImgList = new ArrayList<>();
+    private List<ReviewImg> reviewImgList;
 
     public void updateReview(ReviewInputDto reviewInputDto) {
         this.score = reviewInputDto.getScore();

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../css/product.css">
+    <script src="../js/product.js"></script>
+    <script src="../js/review.js"></script>
+
+    <title>Greenblue Product</title>
+</head>
+<body>
+    <div class="container">
+        <button id="backButton" onclick="goToHome()">목록으로 돌아가기</button>
+        <div class="item-info" id="container">
+            <img src="#" class="item-img" id="item-img">
+            <div class="item" id="sub-container">
+                <div class="item-name" id="item-name">What 맨투맨</div>
+                <div class="item-price" id="item-price"></div>
+                <div class="item-quantity" id="item-quantity">수량 : <input type="text" placeholder="1"></div>
+                <button class="button-cart">장바구니</button>
+                <button class="button-order">주문</button>                
+                <table id="img-container"></table>
+            </div> 
+        </div>
+
+        <h2 id="avg-score"></h2>
+        <div class="reviews">
+            <div class="radio-btns">필터 : 
+                <label>최신순</label>
+                <input type="radio" name="score" id="new" checked>
+                <label>높은 별점순</label>
+                <input type="radio" name="score" id="high-score">
+                <label>낮은 별점순</label>
+                <input type="radio" name="score" id="low-score">            
+                <button type="submit" class="search-button" onclick="conditionSearch()">검색</button> 
+            </div>
+
+            <div class="review" id="review-container">
+                <div class="review-basic-text" id="review-header">
+                    <div id="user">작성자: </div>
+                    <div id="reg-date">작성일: </div>
+                </div>
+                <h3 class="title">좋은 제품입니다!</h3>
+                <div class="rating">⭐⭐⭐⭐⭐</div>
+                <div class="content">
+                    매우 만족스러운 제품입니다. 추천합니다.
+                </div>               
+                <div class="review-image"></div>
+            </div>
+
+        <div class="pagination" id="pagination-container"></div>
+    </div>
+    </div>
+</body>
+</html>

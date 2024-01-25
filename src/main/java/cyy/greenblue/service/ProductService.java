@@ -75,7 +75,7 @@ public class ProductService {
         return pageable;
     }
 
-    public List<ProductExtendDto> findAllByCategory(String soldOut, int startPrice,
+    public Page<ProductExtendDto> findAllByCategory(String soldOut, int startPrice,
                                                     int endPrice, int categoryId, Pageable pageable) {
         Category category = categoryService.findOne(categoryId);
         Page<Product> products;
@@ -84,7 +84,7 @@ public class ProductService {
         } else {
             products = productRepository.soldOut_N(startPrice, endPrice, category, pageable);
         }
-        return products.map(product -> convertProductExtendDto(product, mainImgService.findDtoByProduct(product))).toList();
+        return products.map(product -> convertProductExtendDto(product, mainImgService.findDtoByProduct(product)));
     }
 
     public List<ProductExtendDto> findByWord(String word) {
