@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class OrderProductService {
     private final CartService cartService;
 
     public List<OrderProductDto> convertDtoList(List<OrderProduct> orderProducts) {
-        return orderProducts.stream().map(orderProduct -> new OrderProductDto().toDto(orderProduct)).toList();
+        return orderProducts.stream().map(this::toDto).toList();
     }
 
     public OrderProduct findOne(long orderProductId) {
@@ -107,6 +108,7 @@ public class OrderProductService {
     public List<OrderProductDto> findAllByAuthentication(Authentication authentication) {
         Member member = findMemberByAuthentication(authentication);
         List<OrderProduct> orderProducts = orderProductRepository.findByMember(member);
+        Collections.reverse(orderProducts);
         return convertDtoList(orderProducts);
     }
 
@@ -132,6 +134,25 @@ public class OrderProductService {
                 .reviewStatus(ReviewStatus.UNWRITTEN)
                 .purchaseStatus(PurchaseStatus.PURCHASE_UNCONFIRM)
                 .purchaseDate(LocalDateTime.now())
+                .build();
+    }
+
+    public OrderProductDto toDto(OrderProduct orderProduct) {
+        long productId = orderProduct.getProduct().getId();
+        String mainImgFilename = productService.findProductDtoById(productId).getMainImgDto().getFilename();
+
+
+        return OrderProductDto.builder()
+                .id(orderProduct.getId())
+                .productName(orderProduct.getProduct().getName())
+                .productPrice(orderProduct.getProduct().getPrice())
+                .regDate(orderProduct.getOrderSheet().getRegDate())
+                .reviewStatus(orderProduct.getReviewStatus())
+                .purchaseStatus(orderProduct.getPurchaseStatus())
+                .quantity(orderProduct.getQuantity())
+                .productId(productId)
+                .mainImgFilename(mainImgFilename)
+                .orderSheetId(orderProduct.getOrderSheet().getId())
                 .build();
     }
 }

@@ -83,6 +83,11 @@ public class CartService {
         }
     }
 
+    public List<CartOutputDto> findAllByAuthentication(Authentication authentication) {
+        Member member = findMemberByAuthentication(authentication);
+        return cartRepository.findByMember(member).stream().map(this::convertDto).toList();
+    }
+
     public CartOutputDto convertDto(Cart cart) {
         Product product = productService.findOne(cart.getProduct().getId());
         ProductMainImgDto mainImgDto = productMainImgService.findDtoByProduct(product);

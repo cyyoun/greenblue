@@ -16,9 +16,9 @@
             <div class="item" id="sub-container">
                 <div class="item-name" id="item-name">What 맨투맨</div>
                 <div class="item-price" id="item-price"></div>
-                <div class="item-quantity" id="item-quantity">수량 : <input type="text" placeholder="1"></div>
-                <button class="button-cart">장바구니</button>
-                <button class="button-order">주문</button>                
+                <div class="item-quantity" id="item-quantity">수량 : <input type="text" value="1" id="input-quantity"></div>
+                <button class="button-cart" onclick="addCart()">장바구니</button>
+                <button class="button-order" onclick="addOrder()">주문</button>                
                 <table id="img-container"></table>
             </div> 
         </div>
@@ -34,20 +34,7 @@
                 <input type="radio" name="score" id="low-score">            
                 <button type="submit" class="search-button" onclick="conditionSearch()">검색</button> 
             </div>
-
-            <div class="review" id="review-container">
-                <div class="review-basic-text" id="review-header">
-                    <div id="user">작성자: </div>
-                    <div id="reg-date">작성일: </div>
-                </div>
-                <h3 class="title">좋은 제품입니다!</h3>
-                <div class="rating">⭐⭐⭐⭐⭐</div>
-                <div class="content">
-                    매우 만족스러운 제품입니다. 추천합니다.
-                </div>               
-                <div class="review-image"></div>
-            </div>
-
+        <table class="review-container"></table>
         <div class="pagination" id="pagination-container"></div>
     </div>
     </div>

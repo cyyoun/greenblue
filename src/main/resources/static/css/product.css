@@ -145,6 +145,10 @@ input[type="text"],
     margin-bottom: 30px;
 }
 
+.review-container {
+    width: 1100px;
+}
+
 .reviews {
     color: #96B1C9;
 }

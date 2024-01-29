@@ -3,10 +3,13 @@ package cyy.greenblue.service;
 import cyy.greenblue.domain.*;
 import cyy.greenblue.domain.status.PurchaseStatus;
 import cyy.greenblue.dto.MemberDto;
+import cyy.greenblue.dto.SimpleMemberInfoDto;
 import cyy.greenblue.exception.MemberInfoDuplicateException;
 import cyy.greenblue.repository.MemberRepository;
+import cyy.greenblue.security.auth.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,12 +19,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-    @Transactional
-    @Service
-    @RequiredArgsConstructor
-    public class MemberService {
-        private final MemberRepository memberRepository;
-        private final OrderProductService orderProductService;
+@Transactional
+@Service
+@RequiredArgsConstructor
+public class MemberService {
+    private final MemberRepository memberRepository;
+    private final OrderProductService orderProductService;
     private final OrderSheetService orderSheetService;
     private final PasswordEncoder passwordEncoder;
     private static final Map<Member, Integer> map = new HashMap<>();
@@ -117,5 +120,22 @@ import java.util.Map;
 
     public boolean isEmailDuplicate(String email) {
         return memberRepository.countByEmail(email) > 0;
+    }
+
+    public SimpleMemberInfoDto findSimpleMemberInfo(Authentication authentication) {
+        Member member = findMemberByAuthentication(authentication);
+        return toSimpleMemberDto(member);
+    }
+
+    private Member findMemberByAuthentication(Authentication authentication) {
+        PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
+        return principal.getMember();
+    }
+
+    public SimpleMemberInfoDto toSimpleMemberDto(Member member) {
+        return SimpleMemberInfoDto.builder()
+                .username(member.getUsername())
+                .grade(member.getGrade())
+                .build();
     }
 }

@@ -39,7 +39,7 @@ public class CartController {
     }
 
     @GetMapping
-    public String cartList(Authentication authentication) {
-        return "ok";
+    public List<CartOutputDto> cartList(Authentication authentication) {
+        return cartService.findAllByAuthentication(authentication);
     }
 }

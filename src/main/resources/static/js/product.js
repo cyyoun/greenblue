@@ -1,4 +1,5 @@
-const productUrl = "http://localhost:8080/products";
+const commonUrl = "http://localhost:8080/";
+let productId = 0;
 
 window.onload = () => {
   getProductItem();
@@ -11,7 +12,8 @@ function goToHome() {
 
 function getProductItem() {
   const urlParams = new URLSearchParams(window.location.search);
-  const productId = urlParams.get("id");
+  productId = urlParams.get("id");
+  const productUrl = commonUrl + "products";
   const url = `${productUrl}/${productId}`;
 
   fetch(url)
@@ -51,11 +53,11 @@ function createProductItem(data) {
 function createProductImg(imgList, img) {
   const tableElement = document.getElementById("img-container");
   const maxImgPerRow = 5;
-  var trElemet;
+  var trElement;
 
   imgList.forEach((item, index) => {
     if ((index + 1) % maxImgPerRow === 1) {
-      trElemet = document.createElement("tr");
+      trElement = document.createElement("tr");
     }
     const tdElement = document.createElement("td");
     const imgElement = document.createElement("img");
@@ -66,11 +68,87 @@ function createProductImg(imgList, img) {
       img.src = imgPath;
     });
     tdElement.appendChild(imgElement);
-    trElemet.appendChild(tdElement);
+    trElement.appendChild(tdElement);
 
     if ((index + 1) % maxImgPerRow === 0 || index === imgList.length - 1) {
-      tableElement.appendChild(trElemet);
+      tableElement.appendChild(trElement);
     }
   });
   return tableElement;
+}
+
+function addCart() {
+  var cartUrl = commonUrl + "carts";
+  var quantity = document.getElementById("input-quantity").value;
+  var data = {
+    productId: productId,
+    quantity: quantity,
+  };
+  fetch(cartUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+    .then((response) => {
+      return response.json();
+    })
+    .then((jsonData) => {
+      if (jsonData.status === 403) {
+        var loginChk = confirm("로그인이 필요합니다. 로그인 하시겠습니까?");
+        if (loginChk) {
+          window.location.href = "login.html";
+        }
+      } else {
+        var cartChk = confirm(
+          "상품을 장바구니에 담았습니다. 장바구니로 이동하시겠습니까?"
+        );
+        if (cartChk) {
+          window.location.href = "cart.html";
+        }
+      }
+    })
+    .catch((error) => console.error("Error:", error));
+}
+
+function addOrder() {
+  var orderUrl = commonUrl + "orders";
+  var quantity = document.getElementById("input-quantity").value;
+
+  var data = [
+    {
+      productId: productId,
+      quantity: quantity,
+    },
+  ];
+
+  var orderChk = confirm(
+    "주문을 진행하시겠습니다? 예를 누르면 주문처리 됩니다."
+  );
+
+  if (orderChk) {
+    fetch(orderUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((jsonData) => {
+        if (jsonData.status === 403) {
+          var loginChk = confirm("로그인이 필요합니다. 로그인 하시겠습니까?");
+          if (loginChk) {
+            window.location.href = "login.html";
+          }
+        } else {
+          alert("주문 처리되었습니다.");
+        }
+      });
+  } else {
+    alert("주문을 취소하였습니다.");
+  }
 }

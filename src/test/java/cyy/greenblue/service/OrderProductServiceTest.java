@@ -7,15 +7,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 public class OrderProductServiceTest {
     @Autowired
-    private OrderProductService orderProductService;
+    private AutoScheduleService autoScheduleService;
 
     @Test
     public void scheduleTest() {
-        orderProductService.autoPurchaseConfirm();
+        autoScheduleService.autoPurchaseConfirm();
     }
 
     @Test
     public void closeReviewTest() {
-        orderProductService.endOfReview();
+        autoScheduleService.endOfReview();
     }
 }

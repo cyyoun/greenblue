@@ -1,0 +1,58 @@
+body {
+    /* body 요소에 text-align을 사용하여 가운데 정렬 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* 화면 높이에 맞추어 세로 가운데 정렬 */
+    margin: 0; /* body의 기본 마진 제거 */
+ }
+
+.container {
+    max-width: 1200px; /* 최대 너비 설정 */
+    width: 90%; /* 너비를 적절히 조절 */
+    height: 90vh;
+}
+
+
+button, 
+input[type="submit"]{
+    cursor: pointer;
+}
+
+.order-button, .delete-button {
+    width: 50px;
+    height: 35px;
+    margin: 10px;
+}
+
+.logo-img {
+    max-width: 220px; /* 이미지의 최대 가로 크기 */
+    width: auto; /* 비율을 유지하면서 이미지 크기 조절 */
+    height: auto;
+}
+
+.basic-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cart {
+    display: flex;
+    justify-content: center;
+    padding: 20px; 
+}
+
+.product-info {
+    align-items: center;
+    margin: 0 10px; 
+    flex-wrap: wrap;
+
+}
+
+.product-img {
+    width: 300px;
+    height: 300px;
+    margin-right: 10px; /* 이미지와 텍스트 사이의 간격 조절 */
+}
+
