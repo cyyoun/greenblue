@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="../css/createReview.css">
+        <script src="../js/createReview.js"></script>
+        <title>Greenblue Review</title>
+
+    </head>
+    <body> 
+        <div class="container">        
+            <a href="home.html" class="basic-bar">
+                <img class="logo-img" src="../img/logo.png">
+            </a>
+            <h1>✍ 리뷰 작성하기 </h1>
+            <div class="review-container">
+            <div class="rating-stars" id="rating-stars">
+                <div class="star" onclick="setRating(1)">&#9733;</div>
+                <div class="star" onclick="setRating(2)">&#9733;</div>
+                <div class="star" onclick="setRating(3)">&#9733;</div>
+                <div class="star" onclick="setRating(4)">&#9733;</div>
+                <div class="star" onclick="setRating(5)">&#9733;</div>
+            </div>
+
+
+            <div><input type="text" id="title" placeholder="제목을 입력해주세요."></div>
+            <div><textarea id="content" placeholder="내용을 입력해주세요."></textarea></div>        
+            <label for="img" class="file-upload-container">
+                <div><input type="file" id="img" multiple></div>
+            </label>
+            <div><button onclick="addReview()">리뷰 작성</button></div>
+            <div><button onclick="history.back()">취소</button></div>
+        </div>
+    </body>
+</html>
