@@ -88,7 +88,9 @@ function createOrderlist(data) {
     var reviewBut = document.createElement("button");
     reviewBut.innerText = returnReviewStatus(item.reviewStatus);
     reviewBut.onclick = function () {
-      window.location.href = "../html/review.html";
+      localStorage.setItem("orderProductId", item.id);
+      localStorage.setItem("productId", item.productId);
+      window.location.href = "../html/createReview.html";
     };
     if (item.reviewStatus === "UNWRITTEN") {
       reviewBut.className = "active-button";

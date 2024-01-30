@@ -1,5 +1,6 @@
 package cyy.greenblue.controller;
 
+import cyy.greenblue.domain.Review;
 import cyy.greenblue.dto.ReviewInputDto;
 import cyy.greenblue.dto.ReviewOutputDto;
 import cyy.greenblue.service.PointService;
@@ -67,5 +68,11 @@ public class ReviewController {
     @GetMapping("/mine")
     public List<ReviewOutputDto> myReviewList(Authentication authentication) {
         return reviewService.findAllByAuthentication(authentication);
+    }
+
+    @GetMapping("/{reviewId}")
+    public ReviewOutputDto getReview(@PathVariable long reviewId, Authentication authentication) {
+        Review review = reviewService.findByIdAndAuthentication(reviewId, authentication);
+        return reviewService.convertDto(review);
     }
 }

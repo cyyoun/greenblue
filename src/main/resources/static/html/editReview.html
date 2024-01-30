@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="../css/editReview.css">
+        <script src="../js/editReview.js"></script>
+        <title>Greenblue Review</title>
+
+    </head>
+    <body> 
+        <div class="container">        
+            <a href="home.html" class="basic-bar">
+                <img class="logo-img" src="../img/logo.png">
+            </a>
+            <h1>📏 리뷰 수정하기 </h1>
+            <div class="review-container">
+            <div class="rating-stars" id="rating-stars">
+                <div class="star" onclick="setRating(1)">&#9733;</div>
+                <div class="star" onclick="setRating(2)">&#9733;</div>
+                <div class="star" onclick="setRating(3)">&#9733;</div>
+                <div class="star" onclick="setRating(4)">&#9733;</div>
+                <div class="star" onclick="setRating(5)">&#9733;</div>
+            </div>
+
+
+            <div><input type="text" id="title" placeholder="제목을 입력해주세요."></div>
+            <div><textarea id="content" placeholder="내용을 입력해주세요."></textarea></div>        
+            <div class="img-container"></div>
+            <label for="img" class="file-upload-container">
+                <div><input type="file" id="img" multiple></div>
+            </label>
+            <div><button onclick="editReview()">저장</button></div>
+            <div><button onclick="history.back()">취소</button></div>
+        </div>
+    </body>
+</html>

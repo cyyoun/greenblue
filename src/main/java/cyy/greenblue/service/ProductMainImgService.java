@@ -23,7 +23,7 @@ public class ProductMainImgService {
     private final FileUtil fileUtil;
 
     public ProductMainImgDto save(Product product, MultipartFile multipartFile) {
-        if (multipartFile.isEmpty()) {
+        if (multipartFile == null || multipartFile.isEmpty()) {
             throw new NoMainImgException("상품 메인 이미지가 없습니다.");
         }
         String filename = fileUtil.saveFile(multipartFile, true, fileDir);
@@ -38,7 +38,7 @@ public class ProductMainImgService {
     }
 
     public ProductMainImgDto edit(Product product, MultipartFile multipartFile) {
-        if (multipartFile.isEmpty()) { //변경 없음
+        if (multipartFile == null || multipartFile.isEmpty()) { //변경 없음
             return getProductMainImgDto(findOne(product));
         }
         ProductMainImg productMainImg = findOne(product);

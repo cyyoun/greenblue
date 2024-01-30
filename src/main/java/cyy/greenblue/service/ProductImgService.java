@@ -25,7 +25,7 @@ public class ProductImgService {
     private final FileUtil fileUtil;
 
     public List<ProductImgDto> save(Product product, List<MultipartFile> multipartFiles) {
-        if (multipartFiles.size() == 1 && multipartFiles.get(0).isEmpty()) {
+        if (multipartFiles == null || multipartFiles.isEmpty()) {
             throw new NoMainImgException("상품 이미지가 없습니다.");
         }
 
@@ -48,7 +48,7 @@ public class ProductImgService {
         if (deleteImgList != null) {
             delete(deleteImgList);
         }
-        if (multipartFile.size() != 1 || !multipartFile.get(0).isEmpty()) {
+        if (multipartFile != null) {
             save(product, multipartFile);
         }
         List<ProductImg> productImgList = findAllByProduct(product);

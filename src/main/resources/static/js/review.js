@@ -1,8 +1,7 @@
 const reviewUrl = "http://localhost:8080/reviews";
 
-let productId = "0";
 let sort = "new";
-let page = "0";
+let page = 0;
 
 let totalPages = 0;
 let currentPage = 0;
@@ -45,48 +44,74 @@ function createReviews(data) {
     avg = avg / data.length;
     avgScore.textContent = `🙂 전체 평점 ${avg} 점 (최대 5점)`;
 
+    const container = document.querySelector(".review-container");
+    container.innerHTML = "";
     data.forEach((item) => {
-      const container = document.getElementById("review-container");
-      const header = document.getElementById("review-header");
-      const user = document.getElementById("user");
+      var review = document.createElement("div");
+      review.className = "review";
+
+      var basicText = document.createElement("div");
+      basicText.className = "review-basic-text";
+
+      var user = document.createElement("div");
+      user.className = "user";
       user.textContent = item.username;
 
-      const regDate = document.getElementById("reg-date");
-      regDate.textContent = item.regDate;
+      var regDate = document.createElement("div");
+      regDate.className = "reg-date";
+      const originalDate = new Date(item.regDate);
+      const formatter = new Intl.DateTimeFormat("ko-KR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true, // 24시간 형식
+        timeZone: "Asia/Seoul", // 한국 시간대
+      });
 
-      const title = document.querySelector(".title");
+      const formattedDate = formatter.format(originalDate);
+      regDate.textContent = formattedDate;
+
+      var title = document.createElement("div");
+      title.className = "title";
       title.textContent = item.title;
 
-      const score = document.querySelector(".rating");
-      let starsText = "";
+      var score = document.createElement("div");
+      var starsText = "";
       for (var i = 0; i < item.score; i++) {
         starsText += "⭐";
       }
+      score.className = "rating";
       score.textContent = starsText;
 
-      const content = document.querySelector(".content");
+      var content = document.createElement("div");
+      content.className = "content";
       content.textContent = item.content;
 
-      const imgSelector = document.querySelector(".review-image");
-      imgSelector.innerHTML = "";
+      var images = document.createElement("div");
+      images.className = "review-image";
+      images.innerHTML = "";
 
       item.reviewImgDtoList.forEach((reviewImage) => {
-        const img = document.createElement("img");
-        const imgPath = `../img/review/${reviewImage.filename}`;
+        var img = document.createElement("img");
+        var imgPath = `../img/review/${reviewImage.filename}`;
         img.src = imgPath;
         img.onclick = function () {
           createModal(imgPath);
         };
-        imgSelector.appendChild(img);
+        images.appendChild(img);
       });
 
-      header.appendChild(user);
-      header.appendChild(regDate);
-      container.appendChild(header);
-      container.appendChild(title);
-      container.appendChild(score);
-      container.appendChild(content);
-      container.appendChild(imgSelector);
+      basicText.appendChild(user);
+      basicText.appendChild(regDate);
+      review.appendChild(basicText);
+      review.appendChild(title);
+      review.appendChild(score);
+      review.appendChild(content);
+      review.appendChild(images);
+      container.appendChild(review);
     });
   }
 }
@@ -130,22 +155,23 @@ function showNextImage(img) {
   var reviewImageList = Array.from(imgElements).map((img) => img.src);
 
   if (reviewImageList.length > 0) {
-    const currentIndex = reviewImageList.indexOf(img.src);
-    const nextIndex = (currentIndex + 1) % reviewImageList.length;
+    var currentIndex = reviewImageList.indexOf(img.src);
+    var nextIndex = (currentIndex + 1) % reviewImageList.length;
     img.src = reviewImageList[nextIndex];
   }
 }
 
 function createPages() {
-  const pagesPerView = 5;
-  const totalViews = Math.ceil(totalPages / pagesPerView);
-  const currentView = Math.ceil((currentPage + 1) / pagesPerView);
-  const startPage = (currentView - 1) * pagesPerView + 1;
-  const endPage = Math.min(startPage + pagesPerView - 1, totalPages);
+  var pagesPerView = 5;
+  var totalViews = Math.ceil(totalPages / pagesPerView);
+  var currentView = Math.ceil((currentPage + 1) / pagesPerView);
+  var startPage = (currentView - 1) * pagesPerView + 1;
+  var endPage = Math.min(startPage + pagesPerView - 1, totalPages);
 
-  const container = document.getElementById("pagination-container");
+  var container = document.getElementById("pagination-container");
   container.innerHTML = "";
-  const leftBut = document.createElement("a");
+
+  var leftBut = document.createElement("a");
   leftBut.textContent = "«";
   leftBut.addEventListener("click", () => {
     if (currentView > 1) {
@@ -156,7 +182,7 @@ function createPages() {
   container.appendChild(leftBut);
 
   for (let i = startPage; i <= endPage; i++) {
-    const pageNumber = document.createElement("a");
+    var pageNumber = document.createElement("a");
     pageNumber.textContent = i;
     pageNumber.addEventListener("click", () => {
       page = i - 1;
@@ -165,7 +191,7 @@ function createPages() {
     container.appendChild(pageNumber);
   }
 
-  const rightBut = document.createElement("a");
+  var rightBut = document.createElement("a");
   rightBut.textContent = "»";
   rightBut.addEventListener("click", () => {
     if (currentView < totalViews) {

@@ -95,10 +95,7 @@ public class ReviewService {
     public List<ReviewOutputDto> findAllByAuthentication(Authentication authentication) {
         Member member = findMemberByAuthentication(authentication);
 
-        return reviewRepository.findAllByMember(member).stream().map(review -> {
-            List<ReviewImg> reviewImgList = reviewImgService.findAllByReview(review);
-            return convertDto(review, reviewImgService.convertDtoList(reviewImgList));
-        }).toList();
+        return reviewRepository.findAllByMember(member).stream().map(this::convertDto).toList();
     }
 
     public Pageable dynamicPageable(String sortBy, Pageable pageable) {
@@ -119,18 +116,11 @@ public class ReviewService {
         List<ReviewStatus> reviewStatuses = List.of(ReviewStatus.WRITTEN, ReviewStatus.ACCRUAL);
         List<OrderProduct> orderProducts =
                 orderProductService.findAllByProductIdAndReviewStatus(productId, reviewStatuses);
-        return reviewRepository.findAllByOrderProductList(orderProducts, pageable)
-                .map(review -> {
-                    List<ReviewImg> reviewImgList = reviewImgService.findAllByReview(review);
-                    return convertDto(review, reviewImgService.convertDtoList(reviewImgList));
-                });
+        return reviewRepository.findAllByOrderProductList(orderProducts, pageable).map(this::convertDto);
     }
 
     public List<ReviewOutputDto> convertDtoList(List<Review> reviews) {
-        return reviews.stream().map(review -> {
-            List<ReviewImg> reviewImgList = reviewImgService.findAllByReview(review);
-            return convertDto(review, reviewImgService.convertDtoList(reviewImgList));
-        }).toList();
+        return reviews.stream().map(this::convertDto).toList();
     }
 
     public ReviewOutputDto convertDto(Review review, List<ReviewImgDto> reviewImgDtoList) {
@@ -143,6 +133,20 @@ public class ReviewService {
                 .regDate(review.getRegDate())
                 .orderProductId(review.getOrderProduct().getId())
                 .reviewImgDtoList(reviewImgDtoList)
+                .build();
+    }
+
+    public ReviewOutputDto convertDto(Review review) {
+        List<ReviewImg> reviewImgList = reviewImgService.findAllByReview(review);
+        return ReviewOutputDto.builder()
+                .id(review.getId())
+                .username(review.getMember().getUsername())
+                .score(review.getScore())
+                .title(review.getTitle())
+                .content(review.getContent())
+                .regDate(review.getRegDate())
+                .orderProductId(review.getOrderProduct().getId())
+                .reviewImgDtoList(reviewImgService.convertDtoList(reviewImgList))
                 .build();
     }
 

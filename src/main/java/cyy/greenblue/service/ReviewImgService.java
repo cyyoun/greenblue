@@ -29,7 +29,7 @@ public class ReviewImgService {
     }
 
     public List<ReviewImgDto> save(Review review, List<MultipartFile> multipartFiles) {
-        if (multipartFiles.size() == 1 && multipartFiles.get(0).isEmpty()) {
+        if (multipartFiles  == null) {
             return new ArrayList<>();
         }
         List<String> filenames = fileUtil.saveFiles(multipartFiles, fileDir);
@@ -45,7 +45,7 @@ public class ReviewImgService {
         if (deleteImgList != null) {
             deleteAll(deleteImgList);
         }
-        if (multipartFiles.size() != 1 || !multipartFiles.get(0).isEmpty()) {
+        if (multipartFiles == null) {
             save(review, multipartFiles);
         }
         return convertDtoList(findAllByReview(review));
