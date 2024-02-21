@@ -10,7 +10,7 @@ spring:
       enabled: true
       force: true
   messages:
-    basename: messages, errorss
+    basename: messages, errors
   jpa:
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
