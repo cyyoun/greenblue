@@ -10,18 +10,23 @@ spring:
       enabled: true
       force: true
   messages:
-    basename: messages, errors
+    basename: messages, errorss
   jpa:
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
-
     hibernate:
       ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
     format_sql: true
-
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB
+  redis:
+    host: localhost
+    port: 6379
   security:
     oauth2:
       client:
@@ -58,5 +63,5 @@ logging:
 
 file:
   dir:
-    product: D:\cyyoun\fileStore\greenblue\img\product\
-    review: D:\cyyoun\fileStore\greenblue\img\review\
+    product: D:\cyyoun\projects\private\greenblue\src\main\resources\static\img\product\
+    review: D:\cyyoun\projects\private\greenblue\src\main\resources\static\img\review\
